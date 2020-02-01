@@ -5,7 +5,3 @@ synchronizers:
   - message: kafmesh.deviceId.customer
     type: protobuf
     partitions: 10
-
-  - message: kafmesh.deviceId.customer
-    type: protobuf
-    partitions: 10

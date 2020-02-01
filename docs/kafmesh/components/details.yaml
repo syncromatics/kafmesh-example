@@ -2,15 +2,15 @@ name: details
 description: The details component handles the flow for device details.
 
 emitters:
-  - message: kafmesh.deviceId.detail
+  - message: kafmesh.deviceId.details
     type: protobuf
     partitions: 10
 
 processors:
-  - groupName: kafmesh.deviceId.enrichedDetail
+  - groupName: kafmesh.deviceId.enrichedDetails
     description: Provides enriched device details with customer information.
     inputs:
-      - message: kafmesh.deviceId.detail
+      - message: kafmesh.deviceId.details
         type: protobuf
       - message: kafmesh.deviceId.customer
         type: protobuf
@@ -18,7 +18,7 @@ processors:
       - message: kafmesh.customerId.details
         type: protobuf
     outputs:
-      - message: kafmesh.deviceId.enrichedDetail
+      - message: kafmesh.deviceId.enrichedDetails
         description: Enriched device details
         type: protobuf
         partitions: 10
@@ -27,7 +27,10 @@ processors:
       type: protobuf
 
 sinks:
-  - message: kafmesh.deviceId.enrichedDetail
+  - message: kafmesh.deviceId.enrichedDetails
     name: Enriched Detail Warehouse Sink
     description: Sinks enriched device details to the warehouse database.
     type: protobuf
+
+views:
+  - message: kafmesh.deviceId.enrichedDetails
