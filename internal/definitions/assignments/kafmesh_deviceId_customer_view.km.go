@@ -15,7 +15,7 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	deviceId "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
+	deviceId "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
 type DeviceIdCustomer_View interface {

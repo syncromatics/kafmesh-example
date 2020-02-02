@@ -11,12 +11,12 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	deviceId "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
+	deviceId "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
 type DeviceIdDetails_Emitter interface {
-	Emit(message *DeviceIdDetails_Emitter_Message) error
-	EmitBulk(ctx context.Context, messages []*DeviceIdDetails_Emitter_Message) error
+	Emit(message DeviceIdDetails_Emitter_Message) error
+	EmitBulk(ctx context.Context, messages []DeviceIdDetails_Emitter_Message) error
 }
 
 type DeviceIdDetails_Emitter_impl struct {
@@ -24,23 +24,20 @@ type DeviceIdDetails_Emitter_impl struct {
 }
 
 type DeviceIdDetails_Emitter_Message struct {
-	key string
-	value *deviceId.Details
+	Key string
+	Value *deviceId.Details
 }
 
-func New_DeviceIdDetails_Emitter_Message(key string, value *deviceId.Details) *DeviceIdDetails_Emitter_Message {
-	return &DeviceIdDetails_Emitter_Message{
-		key: key,
-		value: value,
-	}
+type impl_DeviceIdDetails_Emitter_Message struct {
+	msg DeviceIdDetails_Emitter_Message
 }
 
-func (m *DeviceIdDetails_Emitter_Message) Key() string {
-	return m.key
+func (m *impl_DeviceIdDetails_Emitter_Message) Key() string {
+	return m.msg.Key
 }
 
-func (m *DeviceIdDetails_Emitter_Message) Value() interface{} {
-	return m.value
+func (m *impl_DeviceIdDetails_Emitter_Message) Value() interface{} {
+	return m.msg.Value
 }
 
 func New_DeviceIdDetails_Emitter(options runner.ServiceOptions) (*DeviceIdDetails_Emitter_impl, error) {
@@ -70,14 +67,14 @@ func (e *DeviceIdDetails_Emitter_impl) Watch(ctx context.Context) func() error {
 	return e.emitter.Watch(ctx)
 }
 
-func (e *DeviceIdDetails_Emitter_impl) Emit(message *DeviceIdDetails_Emitter_Message) error {
-	return e.emitter.Emit(message.Key(), message.Value())
+func (e *DeviceIdDetails_Emitter_impl) Emit(message DeviceIdDetails_Emitter_Message) error {
+	return e.emitter.Emit(message.Key, message.Value)
 }
 
-func (e *DeviceIdDetails_Emitter_impl) EmitBulk(ctx context.Context, messages []*DeviceIdDetails_Emitter_Message) error {
+func (e *DeviceIdDetails_Emitter_impl) EmitBulk(ctx context.Context, messages []DeviceIdDetails_Emitter_Message) error {
 	b := []runner.EmitMessage{}
 	for _, m := range messages {
-		b = append(b, m)
+		b = append(b, &impl_DeviceIdDetails_Emitter_Message{msg: m})
 	}
 	return e.emitter.EmitBulk(ctx, b)
 }

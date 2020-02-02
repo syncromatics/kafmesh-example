@@ -14,8 +14,8 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	m0 "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
-	m1 "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/customerId"
+	m0 "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
+	m1 "kafmesh-example/internal/definitions/models/kafmesh/customerId"
 )
 
 type KafmeshDeviceIdEnrichedDetails_ProcessorContext interface {

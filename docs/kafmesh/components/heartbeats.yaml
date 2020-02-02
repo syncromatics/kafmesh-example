@@ -23,9 +23,6 @@ processors:
         description: Enriched device heartbeats
         type: protobuf
         partitions: 10
-    persistence:
-      message: kafmesh.deviceId.enrichedHeartbeatState
-      type: protobuf
 
 sinks:
   - message: kafmesh.deviceId.enrichedHeartbeat

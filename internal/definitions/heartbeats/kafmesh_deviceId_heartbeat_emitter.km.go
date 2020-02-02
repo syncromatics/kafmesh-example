@@ -11,12 +11,12 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	deviceId "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
+	deviceId "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
 type DeviceIdHeartbeat_Emitter interface {
-	Emit(message *DeviceIdHeartbeat_Emitter_Message) error
-	EmitBulk(ctx context.Context, messages []*DeviceIdHeartbeat_Emitter_Message) error
+	Emit(message DeviceIdHeartbeat_Emitter_Message) error
+	EmitBulk(ctx context.Context, messages []DeviceIdHeartbeat_Emitter_Message) error
 }
 
 type DeviceIdHeartbeat_Emitter_impl struct {
@@ -24,23 +24,20 @@ type DeviceIdHeartbeat_Emitter_impl struct {
 }
 
 type DeviceIdHeartbeat_Emitter_Message struct {
-	key string
-	value *deviceId.Heartbeat
+	Key string
+	Value *deviceId.Heartbeat
 }
 
-func New_DeviceIdHeartbeat_Emitter_Message(key string, value *deviceId.Heartbeat) *DeviceIdHeartbeat_Emitter_Message {
-	return &DeviceIdHeartbeat_Emitter_Message{
-		key: key,
-		value: value,
-	}
+type impl_DeviceIdHeartbeat_Emitter_Message struct {
+	msg DeviceIdHeartbeat_Emitter_Message
 }
 
-func (m *DeviceIdHeartbeat_Emitter_Message) Key() string {
-	return m.key
+func (m *impl_DeviceIdHeartbeat_Emitter_Message) Key() string {
+	return m.msg.Key
 }
 
-func (m *DeviceIdHeartbeat_Emitter_Message) Value() interface{} {
-	return m.value
+func (m *impl_DeviceIdHeartbeat_Emitter_Message) Value() interface{} {
+	return m.msg.Value
 }
 
 func New_DeviceIdHeartbeat_Emitter(options runner.ServiceOptions) (*DeviceIdHeartbeat_Emitter_impl, error) {
@@ -70,14 +67,14 @@ func (e *DeviceIdHeartbeat_Emitter_impl) Watch(ctx context.Context) func() error
 	return e.emitter.Watch(ctx)
 }
 
-func (e *DeviceIdHeartbeat_Emitter_impl) Emit(message *DeviceIdHeartbeat_Emitter_Message) error {
-	return e.emitter.Emit(message.Key(), message.Value())
+func (e *DeviceIdHeartbeat_Emitter_impl) Emit(message DeviceIdHeartbeat_Emitter_Message) error {
+	return e.emitter.Emit(message.Key, message.Value)
 }
 
-func (e *DeviceIdHeartbeat_Emitter_impl) EmitBulk(ctx context.Context, messages []*DeviceIdHeartbeat_Emitter_Message) error {
+func (e *DeviceIdHeartbeat_Emitter_impl) EmitBulk(ctx context.Context, messages []DeviceIdHeartbeat_Emitter_Message) error {
 	b := []runner.EmitMessage{}
 	for _, m := range messages {
-		b = append(b, m)
+		b = append(b, &impl_DeviceIdHeartbeat_Emitter_Message{msg: m})
 	}
 	return e.emitter.EmitBulk(ctx, b)
 }

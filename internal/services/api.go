@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	"kafmesh-example/internal/kafmesh/definitions/assignments"
-	apiv1 "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/api/v1"
-	"kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/definitions/assignments"
+	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
+	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
@@ -41,9 +41,12 @@ func (s *APIService) GetAssignment(ctx context.Context, request *apiv1.GetAssign
 
 // AssignDevice assigns the device to a customer
 func (s *APIService) AssignDevice(ctx context.Context, request *apiv1.AssignDeviceRequest) (*apiv1.AssignDeviceResponse, error) {
-	err := s.emitter.Emit(assignments.New_DeviceIdCustomer_Emitter_Message(strconv.Itoa(int(request.DeviceId)), &deviceId.Customer{
-		Id: request.CustomerId,
-	}))
+	err := s.emitter.Emit(assignments.DeviceIdCustomer_Emitter_Message{
+		Key: strconv.Itoa(int(request.DeviceId)),
+		Value: &deviceId.Customer{
+			Id: request.CustomerId,
+		},
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to emit device assignment")
 	}

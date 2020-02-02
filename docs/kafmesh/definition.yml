@@ -2,8 +2,8 @@ name: kafmesh
 description: Kafmesh service is an example service to test kafmesh.
 
 output:
-  package: kafmesh
-  path: internal/kafmesh/definitions
+  package: definitions
+  path: internal/definitions
   module: kafmesh-example
 
 messages:

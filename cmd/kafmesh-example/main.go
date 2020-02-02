@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"kafmesh-example/internal/kafmesh/implementation/heartbeats"
 	"log"
 	"net"
 	"os"
@@ -11,10 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	kafmesh "kafmesh-example/internal/kafmesh/definitions"
-	apiv1 "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/api/v1"
-	gatewayv1 "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/gateway/v1"
-	"kafmesh-example/internal/kafmesh/implementation/details"
+	kafmesh "kafmesh-example/internal/definitions"
+	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
+	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
+	"kafmesh-example/internal/implementation/details"
+	"kafmesh-example/internal/implementation/heartbeats"
 	"kafmesh-example/internal/services"
 
 	"github.com/syncromatics/kafmesh/pkg/runner"

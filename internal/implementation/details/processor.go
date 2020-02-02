@@ -1,10 +1,10 @@
-package heartbeats
+package details
 
 import (
 	"strconv"
 
-	"kafmesh-example/internal/kafmesh/definitions/heartbeats"
-	"kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/definitions/details"
+	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 )
@@ -17,10 +17,10 @@ func NewProcessor() *Processor {
 	return &Processor{}
 }
 
-// HandleDeviceIdHeartbeat handles device heartbeat input
-func (p *Processor) HandleDeviceIdHeartbeat(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *deviceId.Heartbeat) error {
+// HandleDeviceIdDetails handles device details input
+func (p *Processor) HandleDeviceIdDetails(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Details) error {
 	state := ctx.State()
-	state.Heartbeat = message
+	state.Name = &wrappers.StringValue{Value: message.Name}
 
 	ctx.SaveState(state)
 
@@ -30,7 +30,7 @@ func (p *Processor) HandleDeviceIdHeartbeat(ctx heartbeats.KafmeshDeviceIdEnrich
 }
 
 // HandleDeviceIdCustomer handles device to customer input
-func (p *Processor) HandleDeviceIdCustomer(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *deviceId.Customer) error {
+func (p *Processor) HandleDeviceIdCustomer(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Customer) error {
 	state := ctx.State()
 	state.CustomerId = &wrappers.Int64Value{Value: message.Id}
 
@@ -42,12 +42,12 @@ func (p *Processor) HandleDeviceIdCustomer(ctx heartbeats.KafmeshDeviceIdEnriche
 }
 
 // Output will output the enriched details if they are valid
-func (p *Processor) Output(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, state *deviceId.EnrichedHeartbeatState) {
+func (p *Processor) Output(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, state *deviceId.EnrichedDetailsState) {
 	if state.CustomerId == nil {
 		return
 	}
 
-	if state.Heartbeat == nil {
+	if state.Name == nil {
 		return
 	}
 
@@ -56,9 +56,8 @@ func (p *Processor) Output(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_Proce
 		return
 	}
 
-	ctx.Output_DeviceIdEnrichedHeartbeat(ctx.Key(), &deviceId.EnrichedHeartbeat{
-		Time:         state.Heartbeat.Time,
-		IsHealthy:    state.Heartbeat.IsHealthy,
+	ctx.Output_DeviceIdEnrichedDetails(ctx.Key(), &deviceId.EnrichedDetails{
+		Name:         state.Name.Value,
 		CustomerId:   state.CustomerId.Value,
 		CustomerName: customerDetails.Name,
 	})
