@@ -1,0 +1,8 @@
+name: assignments
+description: The assignments component keeps the device to customer assignments up to date.
+
+emitters:
+  - message: kafmesh.deviceId.customer
+
+views:
+  - message: kafmesh.deviceId.customer

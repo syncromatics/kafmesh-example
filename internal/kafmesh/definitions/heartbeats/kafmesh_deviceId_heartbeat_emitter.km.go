@@ -14,7 +14,12 @@ import (
 	deviceId "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
 )
 
-type DeviceIdHeartbeat_Emitter struct {
+type DeviceIdHeartbeat_Emitter interface {
+	Emit(message *DeviceIdHeartbeat_Emitter_Message) error
+	EmitBulk(ctx context.Context, messages []*DeviceIdHeartbeat_Emitter_Message) error
+}
+
+type DeviceIdHeartbeat_Emitter_impl struct {
 	emitter *runner.Emitter
 }
 
@@ -38,7 +43,7 @@ func (m *DeviceIdHeartbeat_Emitter_Message) Value() interface{} {
 	return m.value
 }
 
-func New_DeviceIdHeartbeat_Emitter(options runner.ServiceOptions) (*DeviceIdHeartbeat_Emitter, error) {
+func New_DeviceIdHeartbeat_Emitter(options runner.ServiceOptions) (*DeviceIdHeartbeat_Emitter_impl, error) {
 	brokers := options.Brokers
 	protoWrapper := options.ProtoWrapper
 
@@ -56,20 +61,20 @@ func New_DeviceIdHeartbeat_Emitter(options runner.ServiceOptions) (*DeviceIdHear
 		return nil, errors.Wrap(err, "failed creating emitter")
 	}
 
-	return &DeviceIdHeartbeat_Emitter{
+	return &DeviceIdHeartbeat_Emitter_impl{
 		emitter: runner.NewEmitter(emitter),
 	}, nil
 }
 
-func (e *DeviceIdHeartbeat_Emitter) Watch(ctx context.Context) func() error {
+func (e *DeviceIdHeartbeat_Emitter_impl) Watch(ctx context.Context) func() error {
 	return e.emitter.Watch(ctx)
 }
 
-func (e *DeviceIdHeartbeat_Emitter) Emit(message *DeviceIdHeartbeat_Emitter_Message) error {
+func (e *DeviceIdHeartbeat_Emitter_impl) Emit(message *DeviceIdHeartbeat_Emitter_Message) error {
 	return e.emitter.Emit(message.Key(), message.Value())
 }
 
-func (e *DeviceIdHeartbeat_Emitter) EmitBulk(ctx context.Context, messages []*DeviceIdHeartbeat_Emitter_Message) error {
+func (e *DeviceIdHeartbeat_Emitter_impl) EmitBulk(ctx context.Context, messages []*DeviceIdHeartbeat_Emitter_Message) error {
 	b := []runner.EmitMessage{}
 	for _, m := range messages {
 		b = append(b, m)

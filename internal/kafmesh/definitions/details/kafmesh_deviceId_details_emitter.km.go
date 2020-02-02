@@ -14,7 +14,12 @@ import (
 	deviceId "kafmesh-example/internal/kafmesh/definitions/models/kafmesh/deviceId"
 )
 
-type DeviceIdDetails_Emitter struct {
+type DeviceIdDetails_Emitter interface {
+	Emit(message *DeviceIdDetails_Emitter_Message) error
+	EmitBulk(ctx context.Context, messages []*DeviceIdDetails_Emitter_Message) error
+}
+
+type DeviceIdDetails_Emitter_impl struct {
 	emitter *runner.Emitter
 }
 
@@ -38,7 +43,7 @@ func (m *DeviceIdDetails_Emitter_Message) Value() interface{} {
 	return m.value
 }
 
-func New_DeviceIdDetails_Emitter(options runner.ServiceOptions) (*DeviceIdDetails_Emitter, error) {
+func New_DeviceIdDetails_Emitter(options runner.ServiceOptions) (*DeviceIdDetails_Emitter_impl, error) {
 	brokers := options.Brokers
 	protoWrapper := options.ProtoWrapper
 
@@ -56,20 +61,20 @@ func New_DeviceIdDetails_Emitter(options runner.ServiceOptions) (*DeviceIdDetail
 		return nil, errors.Wrap(err, "failed creating emitter")
 	}
 
-	return &DeviceIdDetails_Emitter{
+	return &DeviceIdDetails_Emitter_impl{
 		emitter: runner.NewEmitter(emitter),
 	}, nil
 }
 
-func (e *DeviceIdDetails_Emitter) Watch(ctx context.Context) func() error {
+func (e *DeviceIdDetails_Emitter_impl) Watch(ctx context.Context) func() error {
 	return e.emitter.Watch(ctx)
 }
 
-func (e *DeviceIdDetails_Emitter) Emit(message *DeviceIdDetails_Emitter_Message) error {
+func (e *DeviceIdDetails_Emitter_impl) Emit(message *DeviceIdDetails_Emitter_Message) error {
 	return e.emitter.Emit(message.Key(), message.Value())
 }
 
-func (e *DeviceIdDetails_Emitter) EmitBulk(ctx context.Context, messages []*DeviceIdDetails_Emitter_Message) error {
+func (e *DeviceIdDetails_Emitter_impl) EmitBulk(ctx context.Context, messages []*DeviceIdDetails_Emitter_Message) error {
 	b := []runner.EmitMessage{}
 	for _, m := range messages {
 		b = append(b, m)

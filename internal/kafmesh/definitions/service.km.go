@@ -8,9 +8,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
+	"kafmesh-example/internal/kafmesh/definitions/assignments"
 	"kafmesh-example/internal/kafmesh/definitions/details"
 	"kafmesh-example/internal/kafmesh/definitions/heartbeats"
-	"kafmesh-example/internal/kafmesh/definitions/synchronizers"
 )
 
 func Register_KafmeshDeviceIdEnrichedDetails_Processor(service *runner.Service, processor details.KafmeshDeviceIdEnrichedDetails_Processor) error {
@@ -41,7 +41,21 @@ func Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(service *runner.Service
 	return nil
 }
 
-func New_DeviceIdDetails_Emitter(service *runner.Service) (*details.DeviceIdDetails_Emitter, error) {
+func New_DeviceIdCustomer_Emitter(service *runner.Service) (assignments.DeviceIdCustomer_Emitter, error) {
+	e, err := assignments.New_DeviceIdCustomer_Emitter(service.Options())
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.RegisterRunner(e.Watch)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to register runner with service")
+	}
+
+	return e, nil
+}
+
+func New_DeviceIdDetails_Emitter(service *runner.Service) (details.DeviceIdDetails_Emitter, error) {
 	e, err := details.New_DeviceIdDetails_Emitter(service.Options())
 	if err != nil {
 		return nil, err
@@ -55,7 +69,7 @@ func New_DeviceIdDetails_Emitter(service *runner.Service) (*details.DeviceIdDeta
 	return e, nil
 }
 
-func New_DeviceIdHeartbeat_Emitter(service *runner.Service) (*heartbeats.DeviceIdHeartbeat_Emitter, error) {
+func New_DeviceIdHeartbeat_Emitter(service *runner.Service) (heartbeats.DeviceIdHeartbeat_Emitter, error) {
 	e, err := heartbeats.New_DeviceIdHeartbeat_Emitter(service.Options())
 	if err != nil {
 		return nil, err
@@ -69,7 +83,21 @@ func New_DeviceIdHeartbeat_Emitter(service *runner.Service) (*heartbeats.DeviceI
 	return e, nil
 }
 
-func New_DeviceIdEnrichedDetails_View(service *runner.Service) (*details.DeviceIdEnrichedDetails_View, error) {
+func New_DeviceIdCustomer_View(service *runner.Service) (assignments.DeviceIdCustomer_View, error) {
+	v, err := assignments.New_DeviceIdCustomer_View(service.Options())
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.RegisterRunner(v.Watch)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to register runner with service")
+	}
+
+	return v, nil
+}
+
+func New_DeviceIdEnrichedDetails_View(service *runner.Service) (details.DeviceIdEnrichedDetails_View, error) {
 	v, err := details.New_DeviceIdEnrichedDetails_View(service.Options())
 	if err != nil {
 		return nil, err
@@ -101,20 +129,6 @@ func Register_EnrichedHeartbeatWarehouseSink_Sink(service *runner.Service, sink 
 	r, err := heartbeats.Register_EnrichedHeartbeatWarehouseSink_Sink(service.Options(), sink, interval, maxBufferSize)
 	if err != nil {
 		return errors.Wrap(err, "failed to register sink")
-	}
-
-	err = service.RegisterRunner(r)
-	if err != nil {
-		return errors.Wrap(err, "failed to register runner with service")
-	}
-
-	return nil
-}
-
-func Register_DeviceIdCustomer_Synchronizer(service *runner.Service, synchronizer synchronizers.DeviceIdCustomer_Synchronizer, updateInterval time.Duration) error {
-	r, err := synchronizers.Register_DeviceIdCustomer_Synchronizer(service.Options(), synchronizer, updateInterval)
-	if err != nil {
-		return errors.Wrap(err, "failed to register sychronizer")
 	}
 
 	err = service.RegisterRunner(r)

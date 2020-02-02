@@ -19,13 +19,16 @@ import (
 )
 
 type KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext interface {
+	Key() string
 	Lookup_CustomerIdDetails(key string) *m1.Details
 	Join_DeviceIdCustomer() *m0.Customer
 	Output_DeviceIdEnrichedHeartbeat(key string, message *m0.EnrichedHeartbeat)
+	SaveState(state *m0.EnrichedHeartbeatState)
+	State() *m0.EnrichedHeartbeatState
 }
 
 type KafmeshDeviceIdEnrichedHeartbeat_Processor interface {
-	HandleInput_DeviceIdHeartbeat(ctx KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *m0.Heartbeat) error
+	HandleDeviceIdHeartbeat(ctx KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *m0.Heartbeat) error
 }
 
 type KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl struct {
@@ -36,6 +39,9 @@ func new_KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl(ctx goka.Context
 	return &KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl{ctx}
 }
 
+func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Key() string {
+	return c.ctx.Key()
+}
 func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Lookup_CustomerIdDetails(key string) *m1.Details {
 	v := c.ctx.Lookup("kafmesh.customerId.details", key)
 	return v.(*m1.Details)
@@ -48,6 +54,19 @@ func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Join_DeviceIdCu
 
 func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Output_DeviceIdEnrichedHeartbeat(key string, message *m0.EnrichedHeartbeat) {
 	c.ctx.Emit("kafmesh.deviceId.enrichedHeartbeat", key, message)
+}
+
+func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) SaveState(state *m0.EnrichedHeartbeatState) {
+	c.ctx.SetValue(state)
+}
+
+func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) State() *m0.EnrichedHeartbeatState {
+	v := c.ctx.Value()
+	t := v.(*m0.EnrichedHeartbeatState)
+	if t == nil {
+		t = &m0.EnrichedHeartbeatState{}
+	}
+	return t
 }
 
 func Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(options runner.ServiceOptions, service KafmeshDeviceIdEnrichedHeartbeat_Processor) (func(context.Context) func() error, error) {
@@ -84,11 +103,16 @@ func Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(options runner.ServiceO
 		return nil, errors.Wrap(err, "failed to create codec")
 	}
 
+	c4, err := protoWrapper.Codec("kafmesh.deviceId.enrichedHeartbeat-table", &m0.EnrichedHeartbeatState{})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create codec")
+	}
+
 	edges := []goka.Edge{
 		goka.Input(goka.Stream("kafmesh.deviceId.heartbeat"), c0, func(ctx goka.Context, m interface{}) {
 			msg := m.(*m0.Heartbeat)
 			w := new_KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl(ctx)
-			err := service.HandleInput_DeviceIdHeartbeat(w, msg)
+			err := service.HandleDeviceIdHeartbeat(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}
@@ -96,6 +120,7 @@ func Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(options runner.ServiceO
 		goka.Lookup(goka.Table("kafmesh.customerId.details"), c1),
 		goka.Join(goka.Table("kafmesh.deviceId.customer"), c2),
 		goka.Output(goka.Stream("kafmesh.deviceId.enrichedHeartbeat"), c3),
+		goka.Persist(c4),
 	}
 	group := goka.DefineGroup(goka.Group("kafmesh.deviceId.enrichedHeartbeat"), edges...)
 

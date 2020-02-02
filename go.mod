@@ -15,4 +15,5 @@ require (
 	github.com/syncromatics/kafmesh v0.0.0-20200201055509-16f455d198a5
 	github.com/syndtr/goleveldb v1.0.0
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	google.golang.org/grpc v1.25.1
 )

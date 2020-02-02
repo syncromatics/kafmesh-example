@@ -19,6 +19,7 @@ import (
 )
 
 type KafmeshDeviceIdEnrichedDetails_ProcessorContext interface {
+	Key() string
 	Lookup_CustomerIdDetails(key string) *m1.Details
 	Output_DeviceIdEnrichedDetails(key string, message *m0.EnrichedDetails)
 	SaveState(state *m0.EnrichedDetailsState)
@@ -26,8 +27,8 @@ type KafmeshDeviceIdEnrichedDetails_ProcessorContext interface {
 }
 
 type KafmeshDeviceIdEnrichedDetails_Processor interface {
-	HandleInput_DeviceIdDetails(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Details) error
-	HandleInput_DeviceIdCustomer(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Customer) error
+	HandleDeviceIdDetails(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Details) error
+	HandleDeviceIdCustomer(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Customer) error
 }
 
 type KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl struct {
@@ -38,6 +39,9 @@ func new_KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl(ctx goka.Context) 
 	return &KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl{ctx}
 }
 
+func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) Key() string {
+	return c.ctx.Key()
+}
 func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) Lookup_CustomerIdDetails(key string) *m1.Details {
 	v := c.ctx.Lookup("kafmesh.customerId.details", key)
 	return v.(*m1.Details)
@@ -54,6 +58,9 @@ func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) SaveState(state *
 func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) State() *m0.EnrichedDetailsState {
 	v := c.ctx.Value()
 	t := v.(*m0.EnrichedDetailsState)
+	if t == nil {
+		t = &m0.EnrichedDetailsState{}
+	}
 	return t
 }
 
@@ -95,7 +102,7 @@ func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOpt
 		goka.Input(goka.Stream("kafmesh.deviceId.details"), c0, func(ctx goka.Context, m interface{}) {
 			msg := m.(*m0.Details)
 			w := new_KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl(ctx)
-			err := service.HandleInput_DeviceIdDetails(w, msg)
+			err := service.HandleDeviceIdDetails(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}
@@ -103,7 +110,7 @@ func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOpt
 		goka.Input(goka.Stream("kafmesh.deviceId.customer"), c1, func(ctx goka.Context, m interface{}) {
 			msg := m.(*m0.Customer)
 			w := new_KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl(ctx)
-			err := service.HandleInput_DeviceIdCustomer(w, msg)
+			err := service.HandleDeviceIdCustomer(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}

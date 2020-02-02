@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package kafmesh.customerId;
+option go_package = "customerId";
 
 message Details {
     string name = 1;

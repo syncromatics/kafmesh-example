@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package kafmesh.deviceId;
 
+option go_package = "deviceId";
+
 message EnrichedDetails {
     string name = 1;
+    int64 customer_id = 2;
+    string customer_name = 3;
 }
