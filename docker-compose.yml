@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  kafmesh-example:
+    image: syncromatics/kafmesh-example:${IMAGE_VERSION_SPECIFIC:-latest}
+    build:
+      context: .
+      target: final
+      dockerfile: ./Dockerfile
+      args:
+        version: ${VERSION:-0.0.0-dev}

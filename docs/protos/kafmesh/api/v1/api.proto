@@ -10,6 +10,8 @@ import "google/protobuf/wrappers.proto";
 service Api {
     rpc GetAssignment(GetAssignmentRequest) returns (GetAssignmentResponse);
     rpc AssignDevice(AssignDeviceRequest) returns (AssignDeviceResponse);
+    rpc UpdateCustomerDetails(UpdateCustomerDetailsRequest) returns (UpdateCustomerDetailsResponse);
+    rpc GetCustomerDetails(GetCustomerDetailsRequest) returns (GetCustomerDetailsResponse);
 }
 
 message GetAssignmentRequest {
@@ -27,4 +29,21 @@ message AssignDeviceRequest {
 
 message AssignDeviceResponse {
 
+}
+
+message UpdateCustomerDetailsRequest {
+    int64 customer_id = 1;
+    string name = 2;
+}
+
+message UpdateCustomerDetailsResponse {
+
+}
+
+message GetCustomerDetailsRequest {
+    int64 customer_id = 1;
+}
+
+message GetCustomerDetailsResponse {
+    google.protobuf.StringValue name = 1;
 }

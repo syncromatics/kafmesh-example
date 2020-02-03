@@ -4,6 +4,8 @@ package heartbeats
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	"github.com/burdiyan/kafkautil"
 	"github.com/lovoo/goka"
@@ -26,7 +28,7 @@ type KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext interface {
 }
 
 type KafmeshDeviceIdEnrichedHeartbeat_Processor interface {
-	HandleDeviceIdHeartbeat(ctx KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *m0.Heartbeat) error
+	HandleKafmeshDeviceIDHeartbeat(ctx KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *m0.Heartbeat) error
 }
 
 type KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl struct {
@@ -40,13 +42,20 @@ func new_KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl(ctx goka.Context
 func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Key() string {
 	return c.ctx.Key()
 }
+
 func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Lookup_CustomerIdDetails(key string) *m1.Details {
 	v := c.ctx.Lookup("kafmesh.customerId.details", key)
+	if v == nil {
+		return nil
+	}
 	return v.(*m1.Details)
 }
 
 func (c *KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl) Join_DeviceIdCustomer() *m0.Customer {
 	v := c.ctx.Join("kafmesh.deviceId.customer")
+	if v == nil {
+		return nil
+	}
 	return v.(*m0.Customer)
 }
 
@@ -66,7 +75,15 @@ func Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(options runner.ServiceO
 		WriteBuffer:        opt.MiB * 1,
 	}
 
-	builder := storage.BuilderWithOptions("/tmp/storage", opts)
+	path := filepath.Join("/tmp/storage", "processor", "kafmesh.deviceId.enrichedHeartbeat")
+
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create processor db directory")
+	}
+
+	builder := storage.BuilderWithOptions(path, opts)
+
 
 	c0, err := protoWrapper.Codec("kafmesh.deviceId.heartbeat", &m0.Heartbeat{})
 	if err != nil {
@@ -92,7 +109,7 @@ func Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(options runner.ServiceO
 		goka.Input(goka.Stream("kafmesh.deviceId.heartbeat"), c0, func(ctx goka.Context, m interface{}) {
 			msg := m.(*m0.Heartbeat)
 			w := new_KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext_Impl(ctx)
-			err := service.HandleDeviceIdHeartbeat(w, msg)
+			err := service.HandleKafmeshDeviceIDHeartbeat(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}

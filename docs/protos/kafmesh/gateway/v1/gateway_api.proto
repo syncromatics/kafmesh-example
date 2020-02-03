@@ -14,7 +14,9 @@ service GatewayAPI {
 
 message DetailsRequest {
     int64 device_id = 1;
-    string name = 2;
+    google.protobuf.Timestamp time = 2;
+    string name = 3;
+
 }
 
 message DetailsResponse {

@@ -4,8 +4,11 @@ package kafmesh.deviceId;
 
 option go_package = "deviceId";
 
+import "google/protobuf/timestamp.proto";
+
 message EnrichedDetails {
-    string name = 1;
-    int64 customer_id = 2;
-    string customer_name = 3;
+    google.protobuf.Timestamp time = 1;
+    string name = 2;
+    int64 customer_id = 3;
+    string customer_name = 4;
 }

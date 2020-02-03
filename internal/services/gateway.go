@@ -32,6 +32,7 @@ func (s *GatewayService) Details(ctx context.Context, request *gatewayv1.Details
 		Key: strconv.Itoa(int(request.DeviceId)),
 		Value: &deviceId.Details{
 			Name: request.Name,
+			Time: request.Time,
 		},
 	})
 	if err != nil {

@@ -28,7 +28,7 @@ func Test_Processor_ShouldNotOutputWithNullCustomerMap(t *testing.T) {
 		Time: ptypes.TimestampNow(),
 	}
 
-	err := p.HandleDeviceIdHeartbeat(context, heartbeat)
+	err := p.HandleKafmeshDeviceIDHeartbeat(context, heartbeat)
 	assert.NilError(t, err)
 }
 
@@ -50,7 +50,7 @@ func Test_Processor_ShouldNotOutputWithNullCustomerDetails(t *testing.T) {
 		Time: ptypes.TimestampNow(),
 	}
 
-	err := p.HandleDeviceIdHeartbeat(context, heartbeat)
+	err := p.HandleKafmeshDeviceIDHeartbeat(context, heartbeat)
 	assert.NilError(t, err)
 }
 
@@ -91,7 +91,7 @@ func Test_Processor_ShouldOutput(t *testing.T) {
 		IsHealthy: true,
 	}
 
-	err := p.HandleDeviceIdHeartbeat(context, heartbeat)
+	err := p.HandleKafmeshDeviceIDHeartbeat(context, heartbeat)
 	assert.NilError(t, err)
 
 	assert.Equal(t, outputKey, "423")

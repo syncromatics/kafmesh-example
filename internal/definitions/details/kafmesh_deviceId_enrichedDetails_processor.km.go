@@ -4,6 +4,8 @@ package details
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	"github.com/burdiyan/kafkautil"
 	"github.com/lovoo/goka"
@@ -27,8 +29,8 @@ type KafmeshDeviceIdEnrichedDetails_ProcessorContext interface {
 }
 
 type KafmeshDeviceIdEnrichedDetails_Processor interface {
-	HandleDeviceIdDetails(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Details) error
-	HandleDeviceIdCustomer(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Customer) error
+	HandleKafmeshDeviceIDDetails(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Details) error
+	HandleKafmeshDeviceIDCustomer(ctx KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *m0.Customer) error
 }
 
 type KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl struct {
@@ -42,8 +44,12 @@ func new_KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl(ctx goka.Context) 
 func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) Key() string {
 	return c.ctx.Key()
 }
+
 func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) Lookup_CustomerIdDetails(key string) *m1.Details {
 	v := c.ctx.Lookup("kafmesh.customerId.details", key)
+	if v == nil {
+		return nil
+	}
 	return v.(*m1.Details)
 }
 
@@ -57,11 +63,10 @@ func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) SaveState(state *
 
 func (c *KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl) State() *m0.EnrichedDetailsState {
 	v := c.ctx.Value()
-	t := v.(*m0.EnrichedDetailsState)
-	if t == nil {
-		t = &m0.EnrichedDetailsState{}
+	if v == nil {
+		return &m0.EnrichedDetailsState{}
 	}
-	return t
+	return v.(*m0.EnrichedDetailsState)
 }
 
 func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOptions, service KafmeshDeviceIdEnrichedDetails_Processor) (func(context.Context) func() error, error) {
@@ -76,7 +81,15 @@ func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOpt
 		WriteBuffer:        opt.MiB * 1,
 	}
 
-	builder := storage.BuilderWithOptions("/tmp/storage", opts)
+	path := filepath.Join("/tmp/storage", "processor", "kafmesh.deviceId.enrichedDetails")
+
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create processor db directory")
+	}
+
+	builder := storage.BuilderWithOptions(path, opts)
+
 
 	c0, err := protoWrapper.Codec("kafmesh.deviceId.details", &m0.Details{})
 	if err != nil {
@@ -88,12 +101,17 @@ func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOpt
 		return nil, errors.Wrap(err, "failed to create codec")
 	}
 
-	c2, err := protoWrapper.Codec("kafmesh.deviceId.enrichedDetails", &m0.EnrichedDetails{})
+	c2, err := protoWrapper.Codec("kafmesh.customerId.details", &m1.Details{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create codec")
 	}
 
-	c3, err := protoWrapper.Codec("kafmesh.deviceId.enrichedDetails-table", &m0.EnrichedDetailsState{})
+	c3, err := protoWrapper.Codec("kafmesh.deviceId.enrichedDetails", &m0.EnrichedDetails{})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create codec")
+	}
+
+	c4, err := protoWrapper.Codec("kafmesh.deviceId.enrichedDetails-table", &m0.EnrichedDetailsState{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create codec")
 	}
@@ -102,7 +120,7 @@ func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOpt
 		goka.Input(goka.Stream("kafmesh.deviceId.details"), c0, func(ctx goka.Context, m interface{}) {
 			msg := m.(*m0.Details)
 			w := new_KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl(ctx)
-			err := service.HandleDeviceIdDetails(w, msg)
+			err := service.HandleKafmeshDeviceIDDetails(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}
@@ -110,14 +128,14 @@ func Register_KafmeshDeviceIdEnrichedDetails_Processor(options runner.ServiceOpt
 		goka.Input(goka.Stream("kafmesh.deviceId.customer"), c1, func(ctx goka.Context, m interface{}) {
 			msg := m.(*m0.Customer)
 			w := new_KafmeshDeviceIdEnrichedDetails_ProcessorContext_Impl(ctx)
-			err := service.HandleDeviceIdCustomer(w, msg)
+			err := service.HandleKafmeshDeviceIDCustomer(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}
 		}),
-		goka.Lookup(goka.Table("kafmesh.customerId.details"), c0),
-		goka.Output(goka.Stream("kafmesh.deviceId.enrichedDetails"), c2),
-		goka.Persist(c3),
+		goka.Lookup(goka.Table("kafmesh.customerId.details"), c2),
+		goka.Output(goka.Stream("kafmesh.deviceId.enrichedDetails"), c3),
+		goka.Persist(c4),
 	}
 	group := goka.DefineGroup(goka.Group("kafmesh.deviceId.enrichedDetails"), edges...)
 

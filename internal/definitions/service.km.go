@@ -55,6 +55,20 @@ func New_DeviceIdCustomer_Emitter(service *runner.Service) (assignments.DeviceId
 	return e, nil
 }
 
+func New_CustomerIdDetails_Emitter(service *runner.Service) (assignments.CustomerIdDetails_Emitter, error) {
+	e, err := assignments.New_CustomerIdDetails_Emitter(service.Options())
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.RegisterRunner(e.Watch)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to register runner with service")
+	}
+
+	return e, nil
+}
+
 func New_DeviceIdDetails_Emitter(service *runner.Service) (details.DeviceIdDetails_Emitter, error) {
 	e, err := details.New_DeviceIdDetails_Emitter(service.Options())
 	if err != nil {
@@ -85,6 +99,20 @@ func New_DeviceIdHeartbeat_Emitter(service *runner.Service) (heartbeats.DeviceId
 
 func New_DeviceIdCustomer_View(service *runner.Service) (assignments.DeviceIdCustomer_View, error) {
 	v, err := assignments.New_DeviceIdCustomer_View(service.Options())
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.RegisterRunner(v.Watch)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to register runner with service")
+	}
+
+	return v, nil
+}
+
+func New_CustomerIdDetails_View(service *runner.Service) (assignments.CustomerIdDetails_View, error) {
+	v, err := assignments.New_CustomerIdDetails_View(service.Options())
 	if err != nil {
 		return nil, err
 	}

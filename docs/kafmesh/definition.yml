@@ -15,5 +15,7 @@ components:
 
 defaults:
   partition: 10
-  replication: 3
+  replication: 1
   type: "protobuf"
+  retention: 24h
+  segment: 12h

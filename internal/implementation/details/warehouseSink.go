@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
+
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 	"kafmesh-example/internal/warehouse"
 
@@ -38,8 +40,14 @@ func (s *WarehouseSink) Collect(ctx runner.MessageContext, key string, msg *devi
 		return errors.Wrapf(err, "failed to convert '%s' to int", key)
 	}
 
+	t, err := ptypes.Timestamp(msg.Time)
+	if err != nil {
+		return errors.Wrap(err, "failed to convert timestamp to time")
+	}
+
 	s.buffer = append(s.buffer, warehouse.Details{
 		DeviceID:     int64(id),
+		Time:         t,
 		Name:         msg.Name,
 		CustomerID:   msg.CustomerId,
 		CustomerName: msg.CustomerName,

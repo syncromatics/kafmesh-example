@@ -29,13 +29,15 @@ func Test_Processor_ShouldNotOutputWithNullCustomer(t *testing.T) {
 		t.Fatal("should not output")
 	}
 
-	err := p.HandleDeviceIdDetails(context, &deviceId.Details{
+	err := p.HandleKafmeshDeviceIDDetails(context, &deviceId.Details{
 		Name: "testing",
 	})
 	assert.NilError(t, err)
 
 	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
-		Name: &wrappers.StringValue{Value: "testing"},
+		Details: &deviceId.Details{
+			Name: "testing",
+		},
 	}))
 }
 
@@ -56,7 +58,7 @@ func Test_Processor_ShouldNotOutputWithNullDetails(t *testing.T) {
 		t.Fatal("should not output")
 	}
 
-	err := p.HandleDeviceIdCustomer(context, &deviceId.Customer{
+	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
 		Id: 42,
 	})
 	assert.NilError(t, err)
@@ -72,7 +74,9 @@ func Test_Processor_ShouldNotOutputWithNullCustomerDetails(t *testing.T) {
 	p := details.NewProcessor()
 	context.state = func() *deviceId.EnrichedDetailsState {
 		return &deviceId.EnrichedDetailsState{
-			Name: &wrappers.StringValue{Value: "testing"},
+			Details: &deviceId.Details{
+				Name: "testing",
+			},
 		}
 	}
 
@@ -90,14 +94,16 @@ func Test_Processor_ShouldNotOutputWithNullCustomerDetails(t *testing.T) {
 		return nil
 	}
 
-	err := p.HandleDeviceIdCustomer(context, &deviceId.Customer{
+	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
 		Id: 42,
 	})
 	assert.NilError(t, err)
 
 	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
 		CustomerId: &wrappers.Int64Value{Value: 42},
-		Name:       &wrappers.StringValue{Value: "testing"},
+		Details: &deviceId.Details{
+			Name: "testing",
+		},
 	}))
 }
 
@@ -107,7 +113,9 @@ func Test_Processor_ShouldOutput(t *testing.T) {
 	p := details.NewProcessor()
 	context.state = func() *deviceId.EnrichedDetailsState {
 		return &deviceId.EnrichedDetailsState{
-			Name: &wrappers.StringValue{Value: "testing"},
+			Details: &deviceId.Details{
+				Name: "testing",
+			},
 		}
 	}
 
@@ -132,14 +140,16 @@ func Test_Processor_ShouldOutput(t *testing.T) {
 
 	context.key = "423"
 
-	err := p.HandleDeviceIdCustomer(context, &deviceId.Customer{
+	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
 		Id: 42,
 	})
 	assert.NilError(t, err)
 
 	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
 		CustomerId: &wrappers.Int64Value{Value: 42},
-		Name:       &wrappers.StringValue{Value: "testing"},
+		Details: &deviceId.Details{
+			Name: "testing",
+		},
 	}))
 
 	assert.Equal(t, outputKey, "423")

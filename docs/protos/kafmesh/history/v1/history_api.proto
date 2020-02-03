@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package kafmesh.history.v1;
+
+option csharp_namespace = "Kafmesh.History.V1";
+option go_package = "historyv1";
+
+import "google/protobuf/timestamp.proto";
+
+service HistoryAPI {
+    rpc LastDetails(LastDetailsRequest) returns (LastDetailsResponse);
+    rpc LastHeartbeat(LastHeartbeatRequest) returns (LastHeartbeatResponse);
+}
+
+message None {}
+
+message LastDetailsRequest {
+    int64 device_id = 1;
+}
+
+message Details {
+    google.protobuf.Timestamp time = 1;
+    string name = 2;
+    int64 customer_id = 3;
+    string customer_name = 4;
+}
+
+message LastDetailsResponse {
+    oneof response {
+        None response_none = 1;
+        Details response_details = 2;
+    }
+}
+
+message LastHeartbeatRequest {
+    int64 device_id = 1;
+}
+
+message Heartbeat {
+    google.protobuf.Timestamp time = 1;
+    bool is_healthy = 2;
+    int64 customer_id = 3;
+    string customer_name = 4;
+}
+
+message LastHeartbeatResponse {
+   oneof response {
+       None response_none = 1;
+       Heartbeat response_heartbeat = 2;
+   }
+}

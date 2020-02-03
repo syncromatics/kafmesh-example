@@ -4,6 +4,9 @@ package kafmesh.deviceId;
 
 option go_package = "deviceId";
 
+import "google/protobuf/timestamp.proto";
+
 message Details {
-    string name = 1;
+    google.protobuf.Timestamp time = 1;
+    string name = 2;
 }

@@ -17,37 +17,36 @@ func NewProcessor() *Processor {
 	return &Processor{}
 }
 
-// HandleDeviceIdDetails handles device details input
-func (p *Processor) HandleDeviceIdDetails(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Details) error {
+// HandleKafmeshDeviceIDDetails handles device details input
+func (p *Processor) HandleKafmeshDeviceIDDetails(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Details) error {
 	state := ctx.State()
-	state.Name = &wrappers.StringValue{Value: message.Name}
+	state.Details = message
 
 	ctx.SaveState(state)
 
-	p.Output(ctx, state)
+	p.output(ctx, state)
 
 	return nil
 }
 
-// HandleDeviceIdCustomer handles device to customer input
-func (p *Processor) HandleDeviceIdCustomer(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Customer) error {
+// HandleKafmeshDeviceIDCustomer handles device to customer input
+func (p *Processor) HandleKafmeshDeviceIDCustomer(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Customer) error {
 	state := ctx.State()
 	state.CustomerId = &wrappers.Int64Value{Value: message.Id}
 
 	ctx.SaveState(state)
 
-	p.Output(ctx, state)
+	p.output(ctx, state)
 
 	return nil
 }
 
-// Output will output the enriched details if they are valid
-func (p *Processor) Output(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, state *deviceId.EnrichedDetailsState) {
+func (p *Processor) output(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, state *deviceId.EnrichedDetailsState) {
 	if state.CustomerId == nil {
 		return
 	}
 
-	if state.Name == nil {
+	if state.Details == nil {
 		return
 	}
 
@@ -57,7 +56,8 @@ func (p *Processor) Output(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorC
 	}
 
 	ctx.Output_DeviceIdEnrichedDetails(ctx.Key(), &deviceId.EnrichedDetails{
-		Name:         state.Name.Value,
+		Time:         state.Details.Time,
+		Name:         state.Details.Name,
 		CustomerId:   state.CustomerId.Value,
 		CustomerName: customerDetails.Name,
 	})

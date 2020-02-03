@@ -15,8 +15,8 @@ func NewProcessor() *Processor {
 	return &Processor{}
 }
 
-// HandleDeviceIdHeartbeat handles device heartbeat input
-func (p *Processor) HandleDeviceIdHeartbeat(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *deviceId.Heartbeat) error {
+// HandleKafmeshDeviceIDHeartbeat handles device heartbeat input
+func (p *Processor) HandleKafmeshDeviceIDHeartbeat(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *deviceId.Heartbeat) error {
 	customer := ctx.Join_DeviceIdCustomer()
 
 	if customer == nil {

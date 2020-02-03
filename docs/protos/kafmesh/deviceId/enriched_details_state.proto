@@ -4,9 +4,10 @@ package kafmesh.deviceId;
 
 option go_package = "deviceId";
 
+import "kafmesh/deviceId/details.proto";
 import "google/protobuf/wrappers.proto";
 
 message EnrichedDetailsState {
-    google.protobuf.StringValue name = 1;
+    Details details = 1;
     google.protobuf.Int64Value customer_id = 2;
 }

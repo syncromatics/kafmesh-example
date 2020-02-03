@@ -3,6 +3,9 @@ description: The assignments component keeps the device to customer assignments 
 
 emitters:
   - message: kafmesh.deviceId.customer
+  - message: kafmesh.customerId.details
+    compact: true
 
 views:
   - message: kafmesh.deviceId.customer
+  - message: kafmesh.customerId.details

@@ -53,5 +53,36 @@ func (r *HeartbeatRepository) SaveHeartbeats(ctx context.Context, heartbeats []H
 		return errors.Wrap(err, "failed to close")
 	}
 
+	err = txn.Commit()
+	if err != nil {
+		return errors.Wrap(err, "failed to commit")
+	}
+
 	return nil
+}
+
+// LastHeartbeat returns the last heartbeat for a device
+func (r *HeartbeatRepository) LastHeartbeat(ctx context.Context, deviceID int64) (*Heartbeat, error) {
+	row := r.db.QueryRowContext(ctx, `
+	select
+		time, is_healthy, customer_id, customer_name
+	from
+		device_heartbeats
+	where
+		device_id=$1
+	order by
+		time desc`, deviceID)
+
+	heartbeat := &Heartbeat{
+		DeviceID: deviceID,
+	}
+	err := row.Scan(&heartbeat.Time, &heartbeat.IsHealthy, &heartbeat.CustomerID, &heartbeat.CustomerName)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query heartbeats")
+	}
+
+	return heartbeat, nil
 }

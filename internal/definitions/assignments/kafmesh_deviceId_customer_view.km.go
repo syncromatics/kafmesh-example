@@ -82,6 +82,10 @@ func (v *DeviceIdCustomer_View_impl) Get(key string) (*deviceId.Customer, error)
 		return nil, errors.Wrap(err, "failed to get value from view")
 	}
 
+	if m == nil {
+		return nil, nil
+	}
+
 	msg, ok := m.(*deviceId.Customer)
 	if !ok {
 		return nil, errors.Errorf("expecting message of type '*deviceId.Customer' got type '%t'", m)
