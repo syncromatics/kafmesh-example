@@ -15,6 +15,7 @@ import (
 	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
 	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
 	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
+	"kafmesh-example/internal/implementation/assignments"
 	"kafmesh-example/internal/implementation/details"
 	"kafmesh-example/internal/implementation/heartbeats"
 	"kafmesh-example/internal/services"
@@ -72,9 +73,10 @@ func main() {
 	cancel()
 
 	configureGatewayService(service, server)
-	configureAPIService(service, server)
+	configureAPIService(service, server, db)
 	configureHistoryService(server, db)
 
+	configureAssignments(service, db)
 	setupDetailsComponent(service, db)
 	setupHeartbeatsComponent(service, db)
 
@@ -124,6 +126,16 @@ func main() {
 	}
 }
 
+func configureAssignments(service *runner.Service, db *sql.DB) {
+	repository := warehouse.NewCustomerDetailsRepository(db)
+	synchronizer := assignments.NewCustomerDetailsSynchronizer(repository)
+
+	err := kafmesh.Register_CustomerIdDetails_Synchronizer(service, synchronizer, 5*time.Second)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func configureGatewayService(service *runner.Service, server *grpc.Server) {
 	e, err := kafmesh.New_DeviceIdDetails_Emitter(service)
 	if err != nil {
@@ -140,7 +152,7 @@ func configureGatewayService(service *runner.Service, server *grpc.Server) {
 	gatewayv1.RegisterGatewayAPIServer(server, gateway)
 }
 
-func configureAPIService(service *runner.Service, server *grpc.Server) {
+func configureAPIService(service *runner.Service, server *grpc.Server, db *sql.DB) {
 	e, err := kafmesh.New_DeviceIdCustomer_Emitter(service)
 	if err != nil {
 		log.Fatal(err)
@@ -161,7 +173,9 @@ func configureAPIService(service *runner.Service, server *grpc.Server) {
 		log.Fatal(err)
 	}
 
-	api := services.NewAPIService(e, v, de, dv)
+	repository := warehouse.NewCustomerDetailsRepository(db)
+
+	api := services.NewAPIService(e, v, de, dv, repository)
 
 	apiv1.RegisterApiServer(server, api)
 }
@@ -179,7 +193,7 @@ func setupDetailsComponent(service *runner.Service, db *sql.DB) {
 	repository := warehouse.NewDetailsRepository(db)
 	warehouseSink := details.NewWarehouseSink(repository)
 
-	err := kafmesh.Register_EnrichedDetailWarehouseSink_Sink(service, warehouseSink, 10*time.Second, 100)
+	err := kafmesh.Register_EnrichedDetailWarehouseSink_Sink(service, warehouseSink, 5*time.Second, 100)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -196,7 +210,7 @@ func setupHeartbeatsComponent(service *runner.Service, db *sql.DB) {
 	repository := warehouse.NewHeartbeatRepository(db)
 	warehouseSink := heartbeats.NewWarehouseSink(repository)
 
-	err := kafmesh.Register_EnrichedHeartbeatWarehouseSink_Sink(service, warehouseSink, 10*time.Second, 100)
+	err := kafmesh.Register_EnrichedHeartbeatWarehouseSink_Sink(service, warehouseSink, 5*time.Second, 100)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -9,6 +9,7 @@ import (
 	"kafmesh-example/internal/definitions/models/kafmesh/customerId"
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 	"kafmesh-example/internal/services"
+	"kafmesh-example/internal/warehouse"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
@@ -19,7 +20,7 @@ func Test_API_GetAssignment(t *testing.T) {
 	customerEmitter := &customerEmitter{}
 	customerView := &customerView{}
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	api := services.NewAPIService(customerEmitter, customerView, nil, nil, nil)
 
 	customerView.get = func(key string) (*deviceId.Customer, error) {
 		assert.Equal(t, key, "42")
@@ -40,7 +41,7 @@ func Test_API_GetAssignment_ShouldReturnErrorIfViewFails(t *testing.T) {
 	customerEmitter := &customerEmitter{}
 	customerView := &customerView{}
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	api := services.NewAPIService(customerEmitter, customerView, nil, nil, nil)
 
 	customerView.get = func(key string) (*deviceId.Customer, error) {
 		return nil, errors.Errorf("boom")
@@ -56,7 +57,7 @@ func Test_API_GetAssignment_ShouldReturnNullForUnassignedDevice(t *testing.T) {
 	customerEmitter := &customerEmitter{}
 	customerView := &customerView{}
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	api := services.NewAPIService(customerEmitter, customerView, nil, nil, nil)
 
 	customerView.get = func(key string) (*deviceId.Customer, error) {
 		return nil, nil
@@ -76,7 +77,7 @@ func Test_API_AssignDevice(t *testing.T) {
 	customerEmitter := &customerEmitter{}
 	customerView := &customerView{}
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	api := services.NewAPIService(customerEmitter, customerView, nil, nil, nil)
 
 	var emitted assignments.DeviceIdCustomer_Emitter_Message
 	customerEmitter.emit = func(msg assignments.DeviceIdCustomer_Emitter_Message) error {
@@ -102,7 +103,7 @@ func Test_API_AssignDevice_ShouldReturnErrorIfEmitterFails(t *testing.T) {
 	customerEmitter := &customerEmitter{}
 	customerView := &customerView{}
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	api := services.NewAPIService(customerEmitter, customerView, nil, nil, nil)
 
 	customerEmitter.emit = func(msg assignments.DeviceIdCustomer_Emitter_Message) error {
 		return errors.Errorf("boom")
@@ -124,7 +125,15 @@ func Test_API_UpdateCustomerDetails(t *testing.T) {
 		},
 	}
 
-	api := services.NewAPIService(nil, nil, emitter, nil)
+	var saved warehouse.CustomerDetails
+	repository := &repository{
+		save: func(ctx context.Context, details warehouse.CustomerDetails) error {
+			saved = details
+			return nil
+		},
+	}
+
+	api := services.NewAPIService(nil, nil, emitter, nil, repository)
 
 	_, err := api.UpdateCustomerDetails(context.Background(), &apiv1.UpdateCustomerDetailsRequest{
 		CustomerId: 45,
@@ -138,6 +147,29 @@ func Test_API_UpdateCustomerDetails(t *testing.T) {
 			Name: "testing customer",
 		},
 	})
+
+	assert.DeepEqual(t, saved, warehouse.CustomerDetails{
+		ID:   45,
+		Name: "testing customer",
+	})
+}
+
+func Test_API_UpdateCustomerDetails_ShouldReturnerrorIfRepositoryFails(t *testing.T) {
+	emitter := &customerDetailsEmitter{}
+
+	repository := &repository{
+		save: func(ctx context.Context, details warehouse.CustomerDetails) error {
+			return errors.Errorf("boom")
+		},
+	}
+
+	api := services.NewAPIService(nil, nil, emitter, nil, repository)
+
+	_, err := api.UpdateCustomerDetails(context.Background(), &apiv1.UpdateCustomerDetailsRequest{
+		CustomerId: 45,
+		Name:       "testing customer",
+	})
+	assert.ErrorContains(t, err, "failed to save details to repository: boom")
 }
 
 func Test_API_UpdateCustomerDetailsShouldReturnErrorIfEmitterFails(t *testing.T) {
@@ -147,7 +179,13 @@ func Test_API_UpdateCustomerDetailsShouldReturnErrorIfEmitterFails(t *testing.T)
 		},
 	}
 
-	api := services.NewAPIService(nil, nil, emitter, nil)
+	repository := &repository{
+		save: func(ctx context.Context, details warehouse.CustomerDetails) error {
+			return nil
+		},
+	}
+
+	api := services.NewAPIService(nil, nil, emitter, nil, repository)
 
 	_, err := api.UpdateCustomerDetails(context.Background(), &apiv1.UpdateCustomerDetailsRequest{
 		CustomerId: 45,
@@ -167,7 +205,7 @@ func Test_API_GetCustomerDetails(t *testing.T) {
 		},
 	}
 
-	api := services.NewAPIService(nil, nil, nil, view)
+	api := services.NewAPIService(nil, nil, nil, view, nil)
 
 	r, err := api.GetCustomerDetails(context.Background(), &apiv1.GetCustomerDetailsRequest{
 		CustomerId: 42,
@@ -188,7 +226,7 @@ func Test_API_GetCustomerDetails_ShouldReturnEmptyIfDetailsDontExist(t *testing.
 		},
 	}
 
-	api := services.NewAPIService(nil, nil, nil, view)
+	api := services.NewAPIService(nil, nil, nil, view, nil)
 
 	r, err := api.GetCustomerDetails(context.Background(), &apiv1.GetCustomerDetailsRequest{
 		CustomerId: 42,
@@ -209,7 +247,7 @@ func Test_API_GetCustomerDetails_ShouldErrorIfViewFails(t *testing.T) {
 		},
 	}
 
-	api := services.NewAPIService(nil, nil, nil, view)
+	api := services.NewAPIService(nil, nil, nil, view, nil)
 
 	_, err := api.GetCustomerDetails(context.Background(), &apiv1.GetCustomerDetailsRequest{
 		CustomerId: 42,

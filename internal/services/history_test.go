@@ -97,6 +97,24 @@ func Test_HistoryService_LastDetails_ShouldReturnErrorIfRepoFails(t *testing.T) 
 	assert.ErrorContains(t, err, "failed to get last details from repository: boom")
 }
 
+func Test_HistoryService_LastDetails_ShouldReturnErrorIfTimestamp(t *testing.T) {
+	repo := &detailsRepository{
+		lastDetails: func(ctx context.Context, deviceID int64) (*warehouse.Details, error) {
+			assert.Equal(t, deviceID, int64(12))
+			return &warehouse.Details{
+				Time: time.Unix(math.MaxInt64, math.MaxInt64),
+			}, nil
+		},
+	}
+
+	service := services.NewHistoryAPI(repo, nil)
+
+	_, err := service.LastDetails(context.Background(), &historyv1.LastDetailsRequest{
+		DeviceId: 12,
+	})
+	assert.ErrorContains(t, err, "failed to convert timestamp: timestamp")
+}
+
 type heartbeatsRepository struct {
 	lastHeartbeat func(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error)
 }

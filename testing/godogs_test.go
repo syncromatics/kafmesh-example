@@ -8,17 +8,20 @@ import (
 	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
 	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
 	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
+	"kafmesh-example/internal/warehouse"
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/gherkin"
+	"github.com/syncromatics/go-kit/database"
 	"github.com/syncromatics/kafmesh/pkg/runner"
 	"google.golang.org/grpc"
 )
 
 var (
-	gateway gatewayv1.GatewayAPIClient
-	api     apiv1.ApiClient
-	history historyv1.HistoryAPIClient
+	gateway    gatewayv1.GatewayAPIClient
+	api        apiv1.ApiClient
+	history    historyv1.HistoryAPIClient
+	repository *warehouse.CustomerDetailsRepository
 
 	details testDetails
 )
@@ -28,6 +31,99 @@ type testDetails struct {
 	customer  *Customer
 	details   *Details
 	heartbeat *Heartbeat
+}
+
+func thereIsACustomer(arg1 *gherkin.DataTable) error {
+	c, err := NewCustomer(arg1)
+	if err != nil {
+		return err
+	}
+	details.customer = c
+
+	err = UpdateCustomer(api, c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func theCustomerIsChangedInTheDatabase(arg1 *gherkin.DataTable) error {
+	c, err := NewCustomer(arg1)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	err = repository.Save(ctx, warehouse.CustomerDetails{
+		ID:   c.ID,
+		Name: *c.Name,
+	})
+	if err != nil {
+		return err
+	}
+
+	details.customer = c
+	return nil
+}
+
+func theCustomerIsRemovedFromTheDatabase() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	err := repository.Delete(ctx, details.customer.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func thereIsACustomerAddedInTheDatabase(arg1 *gherkin.DataTable) error {
+	c, err := NewCustomer(arg1)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	err = repository.Save(ctx, warehouse.CustomerDetails{
+		ID:   c.ID,
+		Name: *c.Name,
+	})
+	if err != nil {
+		return err
+	}
+
+	details.customer = c
+	return nil
+}
+
+func theSynchronizerShouldUpdateTheCustomerInKafka() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	err := WaitForExpectedCustomerDetails(ctx, api, details.customer)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func theSynchronizerShouldRemoveTheCustomerFromKafka() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	err := WaitForNilCustomerDetails(ctx, api, details.customer)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func thereIsADevice(arg1 *gherkin.DataTable) error {
@@ -140,7 +236,26 @@ func FeatureContext(s *godog.Suite) {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		err := runner.WaitTillServiceIsRunning(ctx, "kafmesh-example:8888")
+		dSettings := &database.PostgresDatabaseSettings{
+			Host:     "db",
+			Name:     "kafmesh_example",
+			User:     "postgres",
+			Password: "postgres",
+		}
+
+		err := dSettings.WaitForDatabaseToBeOnline(30)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		db, err := dSettings.EnsureDatabaseExistsAndGetConnection()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		repository = warehouse.NewCustomerDetailsRepository(db)
+
+		err = runner.WaitTillServiceIsRunning(ctx, "kafmesh-example:8888")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -161,6 +276,14 @@ func FeatureContext(s *godog.Suite) {
 
 	s.Step(`^there is a device$`, thereIsADevice)
 	s.Step(`^it is assigned to customer$`, itIsAssignedToCustomer)
+
+	s.Step(`^there is a customer$`, thereIsACustomer)
+	s.Step(`^the customer is changed in the database$`, theCustomerIsChangedInTheDatabase)
+	s.Step(`^the customer is removed from the database$`, theCustomerIsRemovedFromTheDatabase)
+	s.Step(`^there is a customer added in the database$`, thereIsACustomerAddedInTheDatabase)
+
+	s.Step(`^the synchronizer should update the customer in kafka$`, theSynchronizerShouldUpdateTheCustomerInKafka)
+	s.Step(`^the synchronizer should remove the customer from kafka$`, theSynchronizerShouldRemoveTheCustomerFromKafka)
 
 	s.Step(`^it sends details to the gateway$`, itSendsDetailsToTheGateway)
 	s.Step(`^details should be saved to the warehouse$`, detailsShouldBeSavedToTheWarehouse)

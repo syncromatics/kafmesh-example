@@ -166,3 +166,17 @@ func Register_EnrichedHeartbeatWarehouseSink_Sink(service *runner.Service, sink 
 
 	return nil
 }
+
+func Register_CustomerIdDetails_Synchronizer(service *runner.Service, synchronizer assignments.CustomerIdDetails_Synchronizer, updateInterval time.Duration) error {
+	r, err := assignments.Register_CustomerIdDetails_Synchronizer(service.Options(), synchronizer, updateInterval)
+	if err != nil {
+		return errors.Wrap(err, "failed to register sychronizer")
+	}
+
+	err = service.RegisterRunner(r)
+	if err != nil {
+		return errors.Wrap(err, "failed to register runner with service")
+	}
+
+	return nil
+}

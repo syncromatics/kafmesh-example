@@ -8,10 +8,16 @@ import (
 	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
 	"kafmesh-example/internal/definitions/models/kafmesh/customerId"
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/warehouse"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
 )
+
+// Repository is a customer details repository
+type Repository interface {
+	Save(ctx context.Context, details warehouse.CustomerDetails) error
+}
 
 // APIService is the service that provides device configuration management
 type APIService struct {
@@ -19,6 +25,7 @@ type APIService struct {
 	view           assignments.DeviceIdCustomer_View
 	detailsEmitter assignments.CustomerIdDetails_Emitter
 	detailsView    assignments.CustomerIdDetails_View
+	repository     Repository
 }
 
 // NewAPIService creates a new api service
@@ -26,12 +33,14 @@ func NewAPIService(
 	emitter assignments.DeviceIdCustomer_Emitter,
 	view assignments.DeviceIdCustomer_View,
 	detailsEmitter assignments.CustomerIdDetails_Emitter,
-	detailsView assignments.CustomerIdDetails_View) *APIService {
+	detailsView assignments.CustomerIdDetails_View,
+	repository Repository) *APIService {
 	return &APIService{
 		emitter:        emitter,
 		view:           view,
 		detailsEmitter: detailsEmitter,
 		detailsView:    detailsView,
+		repository:     repository,
 	}
 }
 
@@ -83,7 +92,15 @@ func (s *APIService) GetCustomerDetails(ctx context.Context, request *apiv1.GetC
 
 // UpdateCustomerDetails updates the customer's details
 func (s *APIService) UpdateCustomerDetails(ctx context.Context, request *apiv1.UpdateCustomerDetailsRequest) (*apiv1.UpdateCustomerDetailsResponse, error) {
-	err := s.detailsEmitter.Emit(assignments.CustomerIdDetails_Emitter_Message{
+	err := s.repository.Save(ctx, warehouse.CustomerDetails{
+		ID:   request.CustomerId,
+		Name: request.Name,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to save details to repository")
+	}
+
+	err = s.detailsEmitter.Emit(assignments.CustomerIdDetails_Emitter_Message{
 		Key: strconv.Itoa(int(request.CustomerId)),
 		Value: &customerId.Details{
 			Name: request.Name,

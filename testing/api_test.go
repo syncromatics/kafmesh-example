@@ -3,13 +3,13 @@ package testing
 import (
 	"context"
 	"fmt"
-	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
-	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/proto"
+	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
+	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 )
 
@@ -62,6 +62,15 @@ func UpdateCustomer(api apiv1.ApiClient, customer *Customer) error {
 		return errors.Wrap(err, "failed to update customer details")
 	}
 
+	err = WaitForExpectedCustomerDetails(ctx, api, customer)
+	if err != nil {
+		return errors.Wrap(err, "failed waiting for expected customer details")
+	}
+
+	return nil
+}
+
+func WaitForExpectedCustomerDetails(ctx context.Context, api apiv1.ApiClient, customer *Customer) error {
 	for {
 		r, err := api.GetCustomerDetails(ctx, &apiv1.GetCustomerDetailsRequest{
 			CustomerId: customer.ID,
@@ -71,6 +80,28 @@ func UpdateCustomer(api apiv1.ApiClient, customer *Customer) error {
 		}
 
 		if r.Name != nil && r.Name.Value == *customer.Name {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return errors.Errorf("timeout waiting for customer details update")
+		default:
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
+}
+
+func WaitForNilCustomerDetails(ctx context.Context, api apiv1.ApiClient, customer *Customer) error {
+	for {
+		r, err := api.GetCustomerDetails(ctx, &apiv1.GetCustomerDetailsRequest{
+			CustomerId: customer.ID,
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to get customer details")
+		}
+
+		if r.Name == nil {
 			return nil
 		}
 

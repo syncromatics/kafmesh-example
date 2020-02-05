@@ -44,4 +44,4 @@ generate-end-to-end:
 
 generate:
 	statik -f -src=./docs/migrations -dest=./internal/migrations
-	../kafmesh/artifacts/kafmesh-gen docs/kafmesh/definition.yml
+	kafmesh-gen docs/kafmesh/definition.yml

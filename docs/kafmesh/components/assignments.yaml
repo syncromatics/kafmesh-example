@@ -9,3 +9,6 @@ emitters:
 views:
   - message: kafmesh.deviceId.customer
   - message: kafmesh.customerId.details
+
+synchronizers:
+  - message: kafmesh.customerId.details

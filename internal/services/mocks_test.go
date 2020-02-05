@@ -8,6 +8,7 @@ import (
 	"kafmesh-example/internal/definitions/heartbeats"
 	"kafmesh-example/internal/definitions/models/kafmesh/customerId"
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/warehouse"
 )
 
 type customerEmitter struct {
@@ -84,4 +85,12 @@ func (e *heartbeatEmitter) Emit(message heartbeats.DeviceIdHeartbeat_Emitter_Mes
 
 func (e *heartbeatEmitter) EmitBulk(ctx context.Context, messages []heartbeats.DeviceIdHeartbeat_Emitter_Message) error {
 	return e.emitBulk(ctx, messages)
+}
+
+type repository struct {
+	save func(ctx context.Context, details warehouse.CustomerDetails) error
+}
+
+func (r *repository) Save(ctx context.Context, details warehouse.CustomerDetails) error {
+	return r.save(ctx, details)
 }
