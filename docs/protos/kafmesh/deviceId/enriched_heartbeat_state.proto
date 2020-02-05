@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package kafmesh.deviceId;
+
+option go_package = "deviceId";
+
+import "kafmesh/deviceId/heartbeat.proto";
+import "google/protobuf/wrappers.proto";
+
+message EnrichedHeartbeatState {
+    Heartbeat heartbeat = 1;
+    google.protobuf.Int64Value customer_id = 2;
+}

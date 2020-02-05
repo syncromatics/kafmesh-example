@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package kafmesh.gateway.v1;
+
+option csharp_namespace = "Kafmesh.Gateway.V1";
+option go_package = "gatewayv1";
+
+import "google/protobuf/timestamp.proto";
+
+service GatewayAPI {
+    rpc Details(DetailsRequest) returns (DetailsResponse);
+    rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+}
+
+message DetailsRequest {
+    int64 device_id = 1;
+    google.protobuf.Timestamp time = 2;
+    string name = 3;
+
+}
+
+message DetailsResponse {
+
+}
+
+message HeartbeatRequest {
+    int64 device_id = 1;
+    google.protobuf.Timestamp time = 2;
+    bool is_healthy = 3;
+}
+
+message HeartbeatResponse {
+
+}

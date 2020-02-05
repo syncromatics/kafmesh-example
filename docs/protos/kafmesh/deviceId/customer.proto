@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package kafmesh.deviceId;
+
+option go_package = "deviceId";
+
+message Customer {
+    int64 id = 1;
+}

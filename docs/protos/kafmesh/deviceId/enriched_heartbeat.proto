@@ -6,7 +6,9 @@ option go_package = "deviceId";
 
 import "google/protobuf/timestamp.proto";
 
-message Heartbeat {
+message EnrichedHeartbeat {
     google.protobuf.Timestamp time = 1;
     bool is_healthy = 2;
+    int64 customer_id = 3;
+    string customer_name = 4;
 }

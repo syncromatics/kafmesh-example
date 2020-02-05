@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package kafmesh.api.v1;
+
+option csharp_namespace = "Kafmesh.Api.V1";
+option go_package = "apiv1";
+
+import "google/protobuf/wrappers.proto";
+
+service Api {
+    rpc GetAssignment(GetAssignmentRequest) returns (GetAssignmentResponse);
+    rpc AssignDevice(AssignDeviceRequest) returns (AssignDeviceResponse);
+    rpc UpdateCustomerDetails(UpdateCustomerDetailsRequest) returns (UpdateCustomerDetailsResponse);
+    rpc GetCustomerDetails(GetCustomerDetailsRequest) returns (GetCustomerDetailsResponse);
+}
+
+message GetAssignmentRequest {
+    int64 device_id = 1;
+}
+
+message GetAssignmentResponse {
+    google.protobuf.Int64Value customer_id = 1;
+}
+
+message AssignDeviceRequest {
+    int64 device_id = 1;
+    int64 customer_id = 2;
+}
+
+message AssignDeviceResponse {
+
+}
+
+message UpdateCustomerDetailsRequest {
+    int64 customer_id = 1;
+    string name = 2;
+}
+
+message UpdateCustomerDetailsResponse {
+
+}
+
+message GetCustomerDetailsRequest {
+    int64 customer_id = 1;
+}
+
+message GetCustomerDetailsResponse {
+    google.protobuf.StringValue name = 1;
+}

@@ -1,0 +1,10 @@
+*
+
+!go.mod
+!go.sum
+!cmd/
+!internal
+!pkg
+!docs/features
+!clients
+!testing

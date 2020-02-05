@@ -1,0 +1,56 @@
+version: '3.4'
+
+services:
+  endtoend:
+    build:
+      context: .
+      target: endtoend
+      dockerfile: ./Dockerfile
+      args:
+        version: ${ASSEMBLY_VERSION:-0.0.0-dev}
+    depends_on:
+      - kafmesh-example
+
+  kafmesh-example:
+    environment:
+      REGISTRY: registry:443
+      BROKERS: kafka:9092
+      DATABASE_HOST: "db"
+      DATABASE_NAME: "kafmesh_example"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "postgres"
+    depends_on:
+      - registry
+      - db
+
+  kafka-zookeeper:
+    image: docker.io/confluentinc/cp-zookeeper:5.3.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: docker.io/confluentinc/cp-kafka:5.3.1
+    environment:
+      HOST_IP: "kafka"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_NUM_PARTITIONS: "10"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: "1"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_REPLICATION_FACTOR: "1"
+      KAFKA_ZOOKEEPER_CONNECT: "kafka-zookeeper"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    depends_on:
+      - kafka-zookeeper
+
+  registry:
+    image: docker.io/syncromatics/proto-schema-registry:v0.7.1
+    environment:
+      KAFKA_BROKER: "kafka:9092"
+      PORT: "443"
+      REPLICATION_FACTOR: "1"
+    depends_on:
+      - kafka
+
+  db:
+    image: postgres:10.2
