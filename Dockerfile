@@ -15,10 +15,11 @@ RUN go get -u golang.org/x/lint/golint
 
 RUN golint -set_exit_status ./...
 
-RUN go test -race ./...
-
 RUN go build -o kafmesh-example ./cmd/kafmesh-example
 
+FROM build as unit
+
+CMD go test -race -coverprofile=/artifacts/coverage.txt -covermode=atomic ./...
 
 FROM ubuntu:18.04 as final
 

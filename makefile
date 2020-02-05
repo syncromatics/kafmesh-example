@@ -1,5 +1,7 @@
 VERSION := $(shell gogitver)
 
+.PHONY: build unit-tests end-to-end-test test 
+
 build: clean
 	docker-compose \
 		-f docker-compose.yml \
@@ -12,6 +14,15 @@ build: clean
 		build \
 		--pull
 
+unit-tests: build
+	docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.ci.yml \
+		up \
+		--exit-code-from unit --abort-on-container-exit \
+		unit
+	cd artifacts && curl -s https://codecov.io/bash | bash
+
 end-to-end-test: clean build
 	docker-compose \
 		-f docker-compose.yml \
@@ -20,7 +31,7 @@ end-to-end-test: clean build
 		--exit-code-from endtoend --abort-on-container-exit \
 		endtoend
 
-test: end-to-end-test
+test: unit-tests end-to-end-test
 
 clean:
 	docker-compose \

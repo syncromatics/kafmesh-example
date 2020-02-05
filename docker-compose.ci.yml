@@ -1,6 +1,14 @@
 version: '3.4'
 
 services:
+  unit:
+    build:
+      context: .
+      target: unit
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./artifacts:/artifacts
+
   endtoend:
     build:
       context: .
