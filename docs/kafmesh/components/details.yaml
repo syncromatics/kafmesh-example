@@ -8,7 +8,6 @@ emitters:
 
 processors:
   - name: enricher
-    groupName: kafmesh.deviceId.enrichedDetails
     description: Provides enriched device details with customer information.
     inputs:
       - message: kafmesh.deviceId.details

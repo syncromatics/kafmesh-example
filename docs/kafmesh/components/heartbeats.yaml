@@ -7,7 +7,7 @@ emitters:
     partitions: 10
 
 processors:
-  - groupName: kafmesh.deviceId.enrichedHeartbeat
+  - name: enricher
     description: Provides enriched device heartbeats with customer information.
     inputs:
       - message: kafmesh.deviceId.heartbeat
