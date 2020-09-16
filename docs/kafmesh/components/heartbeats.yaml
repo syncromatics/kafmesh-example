@@ -1,31 +1,28 @@
 name: heartbeats
 description: The heartbeats component handles the flow for device heartbeats.
 
-emitters:
-  - message: kafmesh.deviceId.heartbeat
-    type: protobuf
-    partitions: 10
+sources:
+  - message: deviceId.heartbeat
 
 processors:
   - name: enricher
     description: Provides enriched device heartbeats with customer information.
     inputs:
-      - message: kafmesh.deviceId.heartbeat
-        type: protobuf
+      - message: deviceId.heartbeat
     joins:
-      - message: kafmesh.deviceId.customer
-        type: protobuf
+      - message: deviceId.customer
     lookups:
-      - message: kafmesh.customerId.details
-        type: protobuf
+      - message: customerId.details
     outputs:
-      - message: kafmesh.deviceId.enrichedHeartbeat
+      - message: deviceId.enrichedHeartbeat
         description: Enriched device heartbeats
-        type: protobuf
-        partitions: 10
 
 sinks:
-  - message: kafmesh.deviceId.enrichedHeartbeat
+  - message: deviceId.enrichedHeartbeat
     name: Enriched Heartbeat Warehouse Sink
     description: Sinks enriched device heartbeats to the warehouse database.
-    type: protobuf
+
+viewSinks:
+  - message: customerId.currentHealth
+    name: Current Health
+    description: Aggregates current device health by customer. 

@@ -63,44 +63,44 @@ func (mr *MockEnricher_ProcessorContextMockRecorder) Timestamp() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Timestamp", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Timestamp))
 }
 
-// Lookup_KafmeshCustomerIDDetails mocks base method
-func (m *MockEnricher_ProcessorContext) Lookup_KafmeshCustomerIDDetails(key string) *customerId.Details {
+// Lookup_CustomerIDDetails mocks base method
+func (m *MockEnricher_ProcessorContext) Lookup_CustomerIDDetails(key string) *customerId.Details {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Lookup_KafmeshCustomerIDDetails", key)
+	ret := m.ctrl.Call(m, "Lookup_CustomerIDDetails", key)
 	ret0, _ := ret[0].(*customerId.Details)
 	return ret0
 }
 
-// Lookup_KafmeshCustomerIDDetails indicates an expected call of Lookup_KafmeshCustomerIDDetails
-func (mr *MockEnricher_ProcessorContextMockRecorder) Lookup_KafmeshCustomerIDDetails(key interface{}) *gomock.Call {
+// Lookup_CustomerIDDetails indicates an expected call of Lookup_CustomerIDDetails
+func (mr *MockEnricher_ProcessorContextMockRecorder) Lookup_CustomerIDDetails(key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Lookup_KafmeshCustomerIDDetails", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Lookup_KafmeshCustomerIDDetails), key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Lookup_CustomerIDDetails", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Lookup_CustomerIDDetails), key)
 }
 
-// Join_KafmeshDeviceIDCustomer mocks base method
-func (m *MockEnricher_ProcessorContext) Join_KafmeshDeviceIDCustomer() *deviceId.Customer {
+// Join_DeviceIDCustomer mocks base method
+func (m *MockEnricher_ProcessorContext) Join_DeviceIDCustomer() *deviceId.Customer {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Join_KafmeshDeviceIDCustomer")
+	ret := m.ctrl.Call(m, "Join_DeviceIDCustomer")
 	ret0, _ := ret[0].(*deviceId.Customer)
 	return ret0
 }
 
-// Join_KafmeshDeviceIDCustomer indicates an expected call of Join_KafmeshDeviceIDCustomer
-func (mr *MockEnricher_ProcessorContextMockRecorder) Join_KafmeshDeviceIDCustomer() *gomock.Call {
+// Join_DeviceIDCustomer indicates an expected call of Join_DeviceIDCustomer
+func (mr *MockEnricher_ProcessorContextMockRecorder) Join_DeviceIDCustomer() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Join_KafmeshDeviceIDCustomer", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Join_KafmeshDeviceIDCustomer))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Join_DeviceIDCustomer", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Join_DeviceIDCustomer))
 }
 
-// Output_KafmeshDeviceIDEnrichedHeartbeat mocks base method
-func (m *MockEnricher_ProcessorContext) Output_KafmeshDeviceIDEnrichedHeartbeat(key string, message *deviceId.EnrichedHeartbeat) {
+// Output_DeviceIDEnrichedHeartbeat mocks base method
+func (m *MockEnricher_ProcessorContext) Output_DeviceIDEnrichedHeartbeat(key string, message *deviceId.EnrichedHeartbeat) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Output_KafmeshDeviceIDEnrichedHeartbeat", key, message)
+	m.ctrl.Call(m, "Output_DeviceIDEnrichedHeartbeat", key, message)
 }
 
-// Output_KafmeshDeviceIDEnrichedHeartbeat indicates an expected call of Output_KafmeshDeviceIDEnrichedHeartbeat
-func (mr *MockEnricher_ProcessorContextMockRecorder) Output_KafmeshDeviceIDEnrichedHeartbeat(key, message interface{}) *gomock.Call {
+// Output_DeviceIDEnrichedHeartbeat indicates an expected call of Output_DeviceIDEnrichedHeartbeat
+func (mr *MockEnricher_ProcessorContextMockRecorder) Output_DeviceIDEnrichedHeartbeat(key, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Output_KafmeshDeviceIDEnrichedHeartbeat", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Output_KafmeshDeviceIDEnrichedHeartbeat), key, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Output_DeviceIDEnrichedHeartbeat", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Output_DeviceIDEnrichedHeartbeat), key, message)
 }
 
 // MockEnricher_Processor is a mock of Enricher_Processor interface
@@ -126,16 +126,16 @@ func (m *MockEnricher_Processor) EXPECT() *MockEnricher_ProcessorMockRecorder {
 	return m.recorder
 }
 
-// HandleKafmeshDeviceIDHeartbeat mocks base method
-func (m *MockEnricher_Processor) HandleKafmeshDeviceIDHeartbeat(ctx Enricher_ProcessorContext, message *deviceId.Heartbeat) error {
+// HandleDeviceIDHeartbeat mocks base method
+func (m *MockEnricher_Processor) HandleDeviceIDHeartbeat(ctx Enricher_ProcessorContext, message *deviceId.Heartbeat) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleKafmeshDeviceIDHeartbeat", ctx, message)
+	ret := m.ctrl.Call(m, "HandleDeviceIDHeartbeat", ctx, message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// HandleKafmeshDeviceIDHeartbeat indicates an expected call of HandleKafmeshDeviceIDHeartbeat
-func (mr *MockEnricher_ProcessorMockRecorder) HandleKafmeshDeviceIDHeartbeat(ctx, message interface{}) *gomock.Call {
+// HandleDeviceIDHeartbeat indicates an expected call of HandleDeviceIDHeartbeat
+func (mr *MockEnricher_ProcessorMockRecorder) HandleDeviceIDHeartbeat(ctx, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleKafmeshDeviceIDHeartbeat", reflect.TypeOf((*MockEnricher_Processor)(nil).HandleKafmeshDeviceIDHeartbeat), ctx, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleDeviceIDHeartbeat", reflect.TypeOf((*MockEnricher_Processor)(nil).HandleDeviceIDHeartbeat), ctx, message)
 }

@@ -63,30 +63,30 @@ func (mr *MockEnricher_ProcessorContextMockRecorder) Timestamp() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Timestamp", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Timestamp))
 }
 
-// Lookup_KafmeshCustomerIDDetails mocks base method
-func (m *MockEnricher_ProcessorContext) Lookup_KafmeshCustomerIDDetails(key string) *customerId.Details {
+// Lookup_CustomerIDDetails mocks base method
+func (m *MockEnricher_ProcessorContext) Lookup_CustomerIDDetails(key string) *customerId.Details {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Lookup_KafmeshCustomerIDDetails", key)
+	ret := m.ctrl.Call(m, "Lookup_CustomerIDDetails", key)
 	ret0, _ := ret[0].(*customerId.Details)
 	return ret0
 }
 
-// Lookup_KafmeshCustomerIDDetails indicates an expected call of Lookup_KafmeshCustomerIDDetails
-func (mr *MockEnricher_ProcessorContextMockRecorder) Lookup_KafmeshCustomerIDDetails(key interface{}) *gomock.Call {
+// Lookup_CustomerIDDetails indicates an expected call of Lookup_CustomerIDDetails
+func (mr *MockEnricher_ProcessorContextMockRecorder) Lookup_CustomerIDDetails(key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Lookup_KafmeshCustomerIDDetails", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Lookup_KafmeshCustomerIDDetails), key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Lookup_CustomerIDDetails", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Lookup_CustomerIDDetails), key)
 }
 
-// Output_KafmeshDeviceIDEnrichedDetails mocks base method
-func (m *MockEnricher_ProcessorContext) Output_KafmeshDeviceIDEnrichedDetails(key string, message *deviceId.EnrichedDetails) {
+// Output_DeviceIDEnrichedDetails mocks base method
+func (m *MockEnricher_ProcessorContext) Output_DeviceIDEnrichedDetails(key string, message *deviceId.EnrichedDetails) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Output_KafmeshDeviceIDEnrichedDetails", key, message)
+	m.ctrl.Call(m, "Output_DeviceIDEnrichedDetails", key, message)
 }
 
-// Output_KafmeshDeviceIDEnrichedDetails indicates an expected call of Output_KafmeshDeviceIDEnrichedDetails
-func (mr *MockEnricher_ProcessorContextMockRecorder) Output_KafmeshDeviceIDEnrichedDetails(key, message interface{}) *gomock.Call {
+// Output_DeviceIDEnrichedDetails indicates an expected call of Output_DeviceIDEnrichedDetails
+func (mr *MockEnricher_ProcessorContextMockRecorder) Output_DeviceIDEnrichedDetails(key, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Output_KafmeshDeviceIDEnrichedDetails", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Output_KafmeshDeviceIDEnrichedDetails), key, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Output_DeviceIDEnrichedDetails", reflect.TypeOf((*MockEnricher_ProcessorContext)(nil).Output_DeviceIDEnrichedDetails), key, message)
 }
 
 // SaveState mocks base method
@@ -138,30 +138,30 @@ func (m *MockEnricher_Processor) EXPECT() *MockEnricher_ProcessorMockRecorder {
 	return m.recorder
 }
 
-// HandleKafmeshDeviceIDDetails mocks base method
-func (m *MockEnricher_Processor) HandleKafmeshDeviceIDDetails(ctx Enricher_ProcessorContext, message *deviceId.Details) error {
+// HandleDeviceIDDetails mocks base method
+func (m *MockEnricher_Processor) HandleDeviceIDDetails(ctx Enricher_ProcessorContext, message *deviceId.Details) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleKafmeshDeviceIDDetails", ctx, message)
+	ret := m.ctrl.Call(m, "HandleDeviceIDDetails", ctx, message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// HandleKafmeshDeviceIDDetails indicates an expected call of HandleKafmeshDeviceIDDetails
-func (mr *MockEnricher_ProcessorMockRecorder) HandleKafmeshDeviceIDDetails(ctx, message interface{}) *gomock.Call {
+// HandleDeviceIDDetails indicates an expected call of HandleDeviceIDDetails
+func (mr *MockEnricher_ProcessorMockRecorder) HandleDeviceIDDetails(ctx, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleKafmeshDeviceIDDetails", reflect.TypeOf((*MockEnricher_Processor)(nil).HandleKafmeshDeviceIDDetails), ctx, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleDeviceIDDetails", reflect.TypeOf((*MockEnricher_Processor)(nil).HandleDeviceIDDetails), ctx, message)
 }
 
-// HandleKafmeshDeviceIDCustomer mocks base method
-func (m *MockEnricher_Processor) HandleKafmeshDeviceIDCustomer(ctx Enricher_ProcessorContext, message *deviceId.Customer) error {
+// HandleDeviceIDCustomer mocks base method
+func (m *MockEnricher_Processor) HandleDeviceIDCustomer(ctx Enricher_ProcessorContext, message *deviceId.Customer) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleKafmeshDeviceIDCustomer", ctx, message)
+	ret := m.ctrl.Call(m, "HandleDeviceIDCustomer", ctx, message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// HandleKafmeshDeviceIDCustomer indicates an expected call of HandleKafmeshDeviceIDCustomer
-func (mr *MockEnricher_ProcessorMockRecorder) HandleKafmeshDeviceIDCustomer(ctx, message interface{}) *gomock.Call {
+// HandleDeviceIDCustomer indicates an expected call of HandleDeviceIDCustomer
+func (mr *MockEnricher_ProcessorMockRecorder) HandleDeviceIDCustomer(ctx, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleKafmeshDeviceIDCustomer", reflect.TypeOf((*MockEnricher_Processor)(nil).HandleKafmeshDeviceIDCustomer), ctx, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleDeviceIDCustomer", reflect.TypeOf((*MockEnricher_Processor)(nil).HandleDeviceIDCustomer), ctx, message)
 }

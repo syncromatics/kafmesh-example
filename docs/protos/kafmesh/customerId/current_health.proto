@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package kafmesh.customerId;
+option go_package = "customerId";
+
+message CurrentHealth {
+    int32 total_devices = 1;
+    int32 healthy_devices = 2;
+}

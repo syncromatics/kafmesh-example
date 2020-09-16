@@ -122,9 +122,47 @@ func discover_Heartbeats_Enricher_Processor(service *runner.Service) error {
 }
 
 
+func discover_Details_DeviceIDDetails_Source(service *runner.Service) error {
+	source := runner.SourceDiscovery{
+		ServiceDiscovery : runner.ServiceDiscovery {
+			Name: "kafmesh",
+			Description: "Kafmesh service is an example service to test kafmesh.",
+		},
+		ComponentDiscovery: runner.ComponentDiscovery{
+			Name: "details",
+			Description: "The details component handles the flow for device details.",
+		},
+		TopicDiscovery: runner.TopicDiscovery{
+			Message: "kafmesh.deviceId.details",
+			Topic: "kafmesh.deviceId.details",
+			Type: 0,
+		},
+	}
+
+	return service.RegisterSource(source)
+}
+func discover_Heartbeats_DeviceIDHeartbeat_Source(service *runner.Service) error {
+	source := runner.SourceDiscovery{
+		ServiceDiscovery : runner.ServiceDiscovery {
+			Name: "kafmesh",
+			Description: "Kafmesh service is an example service to test kafmesh.",
+		},
+		ComponentDiscovery: runner.ComponentDiscovery{
+			Name: "heartbeats",
+			Description: "The heartbeats component handles the flow for device heartbeats.",
+		},
+		TopicDiscovery: runner.TopicDiscovery{
+			Message: "kafmesh.deviceId.heartbeat",
+			Topic: "kafmesh.deviceId.heartbeat",
+			Type: 0,
+		},
+	}
+
+	return service.RegisterSource(source)
+}
 
 
-func discover_Details_KafmeshDeviceIDEnrichedDetails_Sink(service *runner.Service) error {
+func discover_Details_DeviceIDEnrichedDetails_Sink(service *runner.Service) error {
 	sink := runner.SinkDiscovery{
 		ServiceDiscovery : runner.ServiceDiscovery {
 			Name: "kafmesh",
@@ -145,7 +183,7 @@ func discover_Details_KafmeshDeviceIDEnrichedDetails_Sink(service *runner.Servic
 
 	return service.RegisterSink(sink)
 }
-func discover_Heartbeats_KafmeshDeviceIDEnrichedHeartbeat_Sink(service *runner.Service) error {
+func discover_Heartbeats_DeviceIDEnrichedHeartbeat_Sink(service *runner.Service) error {
 	sink := runner.SinkDiscovery{
 		ServiceDiscovery : runner.ServiceDiscovery {
 			Name: "kafmesh",
@@ -168,45 +206,7 @@ func discover_Heartbeats_KafmeshDeviceIDEnrichedHeartbeat_Sink(service *runner.S
 }
 
 
-func discover_Assignments_KafmeshDeviceIDCustomer_View(service *runner.Service) error {
-	view := runner.ViewDiscovery{
-		ServiceDiscovery : runner.ServiceDiscovery {
-			Name: "kafmesh",
-			Description: "Kafmesh service is an example service to test kafmesh.",
-		},
-		ComponentDiscovery: runner.ComponentDiscovery{
-			Name: "assignments",
-			Description: "The assignments component keeps the device to customer assignments up to date.",
-		},
-		TopicDiscovery: runner.TopicDiscovery{
-			Message: "kafmesh.deviceId.customer",
-			Topic: "kafmesh.deviceId.customer",
-			Type: 0,
-		},
-	}
-
-	return service.RegisterView(view)
-}
-func discover_Assignments_KafmeshCustomerIDDetails_View(service *runner.Service) error {
-	view := runner.ViewDiscovery{
-		ServiceDiscovery : runner.ServiceDiscovery {
-			Name: "kafmesh",
-			Description: "Kafmesh service is an example service to test kafmesh.",
-		},
-		ComponentDiscovery: runner.ComponentDiscovery{
-			Name: "assignments",
-			Description: "The assignments component keeps the device to customer assignments up to date.",
-		},
-		TopicDiscovery: runner.TopicDiscovery{
-			Message: "kafmesh.customerId.details",
-			Topic: "kafmesh.customerId.details",
-			Type: 0,
-		},
-	}
-
-	return service.RegisterView(view)
-}
-func discover_Details_KafmeshDeviceIDEnrichedDetails_View(service *runner.Service) error {
+func discover_Details_DeviceIDEnrichedDetails_View(service *runner.Service) error {
 	view := runner.ViewDiscovery{
 		ServiceDiscovery : runner.ServiceDiscovery {
 			Name: "kafmesh",
@@ -227,5 +227,68 @@ func discover_Details_KafmeshDeviceIDEnrichedDetails_View(service *runner.Servic
 }
 
 
+func discover_Heartbeats_CurrentHealth_ViewSink(service *runner.Service) error {
+	sink := runner.ViewSinkDiscovery{
+		ServiceDiscovery : runner.ServiceDiscovery {
+			Name: "kafmesh",
+			Description: "Kafmesh service is an example service to test kafmesh.",
+		},
+		ComponentDiscovery: runner.ComponentDiscovery{
+			Name: "heartbeats",
+			Description: "The heartbeats component handles the flow for device heartbeats.",
+		},
+		TopicDiscovery: runner.TopicDiscovery{
+			Message: "kafmesh.customerId.currentHealth",
+			Topic: "kafmesh.customerId.currentHealth",
+			Type: 0,
+		},
+		Name: "Current Health",
+		Description: "Aggregates current device health by customer.",
+	}
+
+	return service.RegisterViewSink(sink)
+}
 
 
+func discover_Assignments__ViewSource(service *runner.Service) error {
+	source := runner.ViewSourceDiscovery{
+		ServiceDiscovery : runner.ServiceDiscovery {
+			Name: "kafmesh",
+			Description: "Kafmesh service is an example service to test kafmesh.",
+		},
+		ComponentDiscovery: runner.ComponentDiscovery{
+			Name: "assignments",
+			Description: "The assignments component keeps the device to customer assignments up to date.",
+		},
+		TopicDiscovery: runner.TopicDiscovery{
+			Message: "kafmesh.deviceId.customer",
+			Topic: "kafmesh.deviceId.customer",
+			Type: 0,
+		},
+		Name: "",
+		Description: "",
+	}
+
+	return service.RegisterViewSource(source)
+}
+func discover_Assignments__ViewSource(service *runner.Service) error {
+	source := runner.ViewSourceDiscovery{
+		ServiceDiscovery : runner.ServiceDiscovery {
+			Name: "kafmesh",
+			Description: "Kafmesh service is an example service to test kafmesh.",
+		},
+		ComponentDiscovery: runner.ComponentDiscovery{
+			Name: "assignments",
+			Description: "The assignments component keeps the device to customer assignments up to date.",
+		},
+		TopicDiscovery: runner.TopicDiscovery{
+			Message: "kafmesh.customerId.details",
+			Topic: "kafmesh.customerId.details",
+			Type: 0,
+		},
+		Name: "",
+		Description: "",
+	}
+
+	return service.RegisterViewSource(source)
+}

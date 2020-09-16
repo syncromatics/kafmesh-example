@@ -51,46 +51,46 @@ func Register_Heartbeats_Enricher_Processor(service *runner.Service, processor h
 	return nil
 }
 
-func New_Assignments_KafmeshDeviceIDCustomer_View(service *runner.Service) (assignments.KafmeshDeviceIDCustomer_View, error) {
-	v, err := assignments.New_KafmeshDeviceIDCustomer_View(service.Options())
+func New_Details_DeviceIDDetails_Source(service *runner.Service) (details.DeviceIDDetails_Source, error) {
+	e, err := details.New_DeviceIDDetails_Source(service)
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.RegisterRunner(v.Watch)
+	err = service.RegisterRunner(e.Watch)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Assignments_KafmeshDeviceIDCustomer_View(service)
+	err = discover_Details_DeviceIDDetails_Source(service)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to register with discovery")
 	}
 
-	return v, nil
+	return e, nil
 }
 
-func New_Assignments_KafmeshCustomerIDDetails_View(service *runner.Service) (assignments.KafmeshCustomerIDDetails_View, error) {
-	v, err := assignments.New_KafmeshCustomerIDDetails_View(service.Options())
+func New_Heartbeats_DeviceIDHeartbeat_Source(service *runner.Service) (heartbeats.DeviceIDHeartbeat_Source, error) {
+	e, err := heartbeats.New_DeviceIDHeartbeat_Source(service)
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.RegisterRunner(v.Watch)
+	err = service.RegisterRunner(e.Watch)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Assignments_KafmeshCustomerIDDetails_View(service)
+	err = discover_Heartbeats_DeviceIDHeartbeat_Source(service)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to register with discovery")
 	}
 
-	return v, nil
+	return e, nil
 }
 
-func New_Details_KafmeshDeviceIDEnrichedDetails_View(service *runner.Service) (details.KafmeshDeviceIDEnrichedDetails_View, error) {
-	v, err := details.New_KafmeshDeviceIDEnrichedDetails_View(service.Options())
+func New_Details_DeviceIDEnrichedDetails_View(service *runner.Service) (details.DeviceIDEnrichedDetails_View, error) {
+	v, err := details.New_DeviceIDEnrichedDetails_View(service.Options())
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func New_Details_KafmeshDeviceIDEnrichedDetails_View(service *runner.Service) (d
 		return nil, errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Details_KafmeshDeviceIDEnrichedDetails_View(service)
+	err = discover_Details_DeviceIDEnrichedDetails_View(service)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to register with discovery")
 	}
@@ -119,7 +119,7 @@ func Register_EnrichedDetailWarehouseSink_Sink(service *runner.Service, sink det
 		return errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Details_KafmeshDeviceIDEnrichedDetails_Sink(service)
+	err = discover_Details_DeviceIDEnrichedDetails_Sink(service)
 	if err != nil {
 		return errors.Wrap(err, "failed to register with discovery")
 	}
@@ -138,7 +138,64 @@ func Register_EnrichedHeartbeatWarehouseSink_Sink(service *runner.Service, sink 
 		return errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Heartbeats_KafmeshDeviceIDEnrichedHeartbeat_Sink(service)
+	err = discover_Heartbeats_DeviceIDEnrichedHeartbeat_Sink(service)
+	if err != nil {
+		return errors.Wrap(err, "failed to register with discovery")
+	}
+
+	return nil
+}
+
+func Register_Assignments__ViewSource(service *runner.Service, viewSource assignments._ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
+	r, err := assignments.Register__ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
+	if err != nil {
+		return errors.Wrap(err, "failed to register viewSource")
+	}
+
+	err = service.RegisterRunner(r)
+	if err != nil {
+		return errors.Wrap(err, "failed to register runner with service")
+	}
+
+	err = discover_Assignments__ViewSource(service)
+	if err != nil {
+		return errors.Wrap(err, "failed to register with discovery")
+	}
+
+	return nil
+}
+
+func Register_Assignments__ViewSource(service *runner.Service, viewSource assignments._ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
+	r, err := assignments.Register__ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
+	if err != nil {
+		return errors.Wrap(err, "failed to register viewSource")
+	}
+
+	err = service.RegisterRunner(r)
+	if err != nil {
+		return errors.Wrap(err, "failed to register runner with service")
+	}
+
+	err = discover_Assignments__ViewSource(service)
+	if err != nil {
+		return errors.Wrap(err, "failed to register with discovery")
+	}
+
+	return nil
+}
+
+func Register_Heartbeats_CurrentHealth_ViewSink(service *runner.Service, viewSink heartbeats.CurrentHealth_ViewSink, updateInterval time.Duration, syncTimeout time.Duration) error {
+	r, err := heartbeats.Register_CurrentHealth_ViewSink(service.Options(), viewSink, updateInterval, syncTimeout)
+	if err != nil {
+		return errors.Wrap(err, "failed to register viewSink")
+	}
+
+	err = service.RegisterRunner(r)
+	if err != nil {
+		return errors.Wrap(err, "failed to register runner with service")
+	}
+
+	err = discover_Heartbeats_CurrentHealth_ViewSink(service)
 	if err != nil {
 		return errors.Wrap(err, "failed to register with discovery")
 	}

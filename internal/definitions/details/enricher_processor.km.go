@@ -25,15 +25,15 @@ import (
 type Enricher_ProcessorContext interface {
 	Key() string
 	Timestamp() time.Time
-	Lookup_KafmeshCustomerIDDetails(key string) *m1.Details
-	Output_KafmeshDeviceIDEnrichedDetails(key string, message *m0.EnrichedDetails)
+	Lookup_CustomerIDDetails(key string) *m1.Details
+	Output_DeviceIDEnrichedDetails(key string, message *m0.EnrichedDetails)
 	SaveState(state *m0.EnrichedDetailsState)
 	State() *m0.EnrichedDetailsState
 }
 
 type Enricher_Processor interface {
-	HandleKafmeshDeviceIDDetails(ctx Enricher_ProcessorContext, message *m0.Details) error
-	HandleKafmeshDeviceIDCustomer(ctx Enricher_ProcessorContext, message *m0.Customer) error
+	HandleDeviceIDDetails(ctx Enricher_ProcessorContext, message *m0.Details) error
+	HandleDeviceIDCustomer(ctx Enricher_ProcessorContext, message *m0.Customer) error
 }
 
 type Enricher_ProcessorContext_Impl struct {
@@ -53,29 +53,29 @@ func (c *Enricher_ProcessorContext_Impl) Timestamp() time.Time {
 	return c.ctx.Timestamp()
 }
 
-func (c *Enricher_ProcessorContext_Impl) Lookup_KafmeshCustomerIDDetails(key string) *m1.Details {
+func (c *Enricher_ProcessorContext_Impl) Lookup_CustomerIDDetails(key string) *m1.Details {
 	v := c.ctx.Lookup("kafmesh.customerId.details", key)
 	if v == nil {
-		c.processorContext.Lookup("kafmesh.customerId.details", "kafmesh.customerId.details", key, "")
+		c.processorContext.Lookup("kafmesh.customerId.details", "customerId.details", key, "")
 		return nil
 	}
 
 	m := v.(*m1.Details)
 	value, _ := json.Marshal(m)
-	c.processorContext.Lookup("kafmesh.customerId.details", "kafmesh.customerId.details", key, string(value))
+	c.processorContext.Lookup("kafmesh.customerId.details", "customerId.details", key, string(value))
 
 	return m
 }
 
-func (c *Enricher_ProcessorContext_Impl) Output_KafmeshDeviceIDEnrichedDetails(key string, message *m0.EnrichedDetails) {
+func (c *Enricher_ProcessorContext_Impl) Output_DeviceIDEnrichedDetails(key string, message *m0.EnrichedDetails) {
 	value, _ := json.Marshal(message)
-	c.processorContext.Output("kafmesh.deviceId.enrichedDetails", "kafmesh.deviceId.enrichedDetails", key, string(value))
+	c.processorContext.Output("kafmesh.deviceId.enrichedDetails", "deviceId.enrichedDetails", key, string(value))
 	c.ctx.Emit("kafmesh.deviceId.enrichedDetails", key, message)
 }
 
 func (c *Enricher_ProcessorContext_Impl) SaveState(state *m0.EnrichedDetailsState) {
 	value, _ := json.Marshal(state)
-	c.processorContext.SetState("kafmesh.details.enricher-table", "kafmesh.deviceId.enrichedDetailsState", string(value))
+	c.processorContext.SetState("kafmesh.details.enricher-table", "deviceId.enrichedDetailsState", string(value))
 
 	c.ctx.SetValue(state)
 }
@@ -90,7 +90,7 @@ func (c *Enricher_ProcessorContext_Impl) State() *m0.EnrichedDetailsState {
 	}
 
 	value, _ := json.Marshal(m)
-	c.processorContext.GetState("kafmesh.details.enricher-table", "kafmesh.deviceId.enrichedDetailsState", string(value))
+	c.processorContext.GetState("kafmesh.details.enricher-table", "deviceId.enrichedDetailsState", string(value))
 
 	return m
 }
@@ -154,10 +154,10 @@ func Register_Enricher_Processor(service *runner.Service, impl Enricher_Processo
 			if err != nil {
 				ctx.Fail(err)
 			}
-			pc.Input("kafmesh.deviceId.details", "kafmesh.deviceId.details", string(v))
+			pc.Input("kafmesh.deviceId.details", "deviceId.details", string(v))
 
 			w := new_Enricher_ProcessorContext_Impl(ctx, pc)
-			err = impl.HandleKafmeshDeviceIDDetails(w, msg)
+			err = impl.HandleDeviceIDDetails(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}
@@ -172,10 +172,10 @@ func Register_Enricher_Processor(service *runner.Service, impl Enricher_Processo
 			if err != nil {
 				ctx.Fail(err)
 			}
-			pc.Input("kafmesh.deviceId.customer", "kafmesh.deviceId.customer", string(v))
+			pc.Input("kafmesh.deviceId.customer", "deviceId.customer", string(v))
 
 			w := new_Enricher_ProcessorContext_Impl(ctx, pc)
-			err = impl.HandleKafmeshDeviceIDCustomer(w, msg)
+			err = impl.HandleDeviceIDCustomer(w, msg)
 			if err != nil {
 				ctx.Fail(err)
 			}
