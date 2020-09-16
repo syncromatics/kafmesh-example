@@ -15,7 +15,7 @@ import (
 func Test_Processor_ShouldNotOutputWithNullCustomer(t *testing.T) {
 	context := &contextMock{}
 
-	p := details.NewProcessor()
+	p := details.NewEnricher()
 	context.state = func() *deviceId.EnrichedDetailsState {
 		return &deviceId.EnrichedDetailsState{}
 	}
@@ -29,7 +29,7 @@ func Test_Processor_ShouldNotOutputWithNullCustomer(t *testing.T) {
 		t.Fatal("should not output")
 	}
 
-	err := p.HandleKafmeshDeviceIDDetails(context, &deviceId.Details{
+	err := p.HandleDeviceIDDetails(context, &deviceId.Details{
 		Name: "testing",
 	})
 	assert.NilError(t, err)
@@ -44,7 +44,7 @@ func Test_Processor_ShouldNotOutputWithNullCustomer(t *testing.T) {
 func Test_Processor_ShouldNotOutputWithNullDetails(t *testing.T) {
 	context := &contextMock{}
 
-	p := details.NewProcessor()
+	p := details.NewEnricher()
 	context.state = func() *deviceId.EnrichedDetailsState {
 		return &deviceId.EnrichedDetailsState{}
 	}
@@ -58,7 +58,7 @@ func Test_Processor_ShouldNotOutputWithNullDetails(t *testing.T) {
 		t.Fatal("should not output")
 	}
 
-	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
+	err := p.HandleDeviceIDDetails(context, &deviceId.Customer{
 		Id: 42,
 	})
 	assert.NilError(t, err)
@@ -71,7 +71,7 @@ func Test_Processor_ShouldNotOutputWithNullDetails(t *testing.T) {
 func Test_Processor_ShouldNotOutputWithNullCustomerDetails(t *testing.T) {
 	context := &contextMock{}
 
-	p := details.NewProcessor()
+	p := details.NewEnricher()
 	context.state = func() *deviceId.EnrichedDetailsState {
 		return &deviceId.EnrichedDetailsState{
 			Details: &deviceId.Details{
