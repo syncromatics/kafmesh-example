@@ -45,4 +45,6 @@ generate-end-to-end:
 generate:
 	statik -f -src=./docs/migrations -dest=./internal/migrations
 	rm -rf ./internal/definitions
+	# The following relative path makes it easy to iterate on kafmesh and
+	# use local changes to generate the kafmesh definitions in this example.
 	../kafmesh/artifacts/kafmesh-gen docs/kafmesh/definition.yml

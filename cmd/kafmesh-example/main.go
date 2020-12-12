@@ -11,10 +11,12 @@ import (
 	"syscall"
 	"time"
 
+	"kafmesh-example/internal/data"
 	kafmesh "kafmesh-example/internal/definitions"
 	apiv1 "kafmesh-example/internal/definitions/models/kafmesh/api/v1"
 	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
 	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
+	"kafmesh-example/internal/implementation/assignments"
 	"kafmesh-example/internal/implementation/details"
 	"kafmesh-example/internal/implementation/heartbeats"
 	"kafmesh-example/internal/services"
@@ -75,6 +77,7 @@ func main() {
 	configureAPIService(service, server)
 	configureHistoryService(server, db)
 
+	setupAssignmentsComponent(service, db)
 	setupDetailsComponent(service, db)
 	setupHeartbeatsComponent(service, db)
 
@@ -204,6 +207,24 @@ func setupHeartbeatsComponent(service *runner.Service, db *sql.DB) {
 	processor := heartbeats.NewProcessor()
 
 	err = kafmesh.Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(service, processor)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func setupAssignmentsComponent(service *runner.Service, db *sql.DB) {
+	repository := data.NewRepo(db)
+	interval := 10 * time.Second
+	timeout := 2 * time.Second
+
+	cd := assignments.NewCustomerDetailsViewSource(repository)
+	err := kafmesh.Register_Assignments_CustomerDetails_ViewSource(service, cd, interval, timeout)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	da := assignments.NewDeviceCustomerViewSource(repository)
+	err = kafmesh.Register_Assignments_DeviceCustomer_ViewSource(service, da, interval, timeout)
 	if err != nil {
 		log.Fatal(err)
 	}
