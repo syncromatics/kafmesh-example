@@ -21,25 +21,25 @@ import (
 	"kafmesh-example/internal/definitions/models/kafmesh/customerId"
 )
 
-type _ViewSource_Context interface {
+type CustomerDetails_ViewSource_Context interface {
 	context.Context
 	Update(string, *customerId.Details) error
 }
 
-type _ViewSource interface {
-	Sync(_ViewSource_Context) error
+type CustomerDetails_ViewSource interface {
+	Sync(CustomerDetails_ViewSource_Context) error
 }
 
-type contextWrap_ struct {
+type contextWrap_CustomerDetails struct {
 	context.Context
 	job *runner.ProtoViewSourceJob
 }
 
-func (c *contextWrap_) Update(key string, msg *customerId.Details) error {
+func (c *contextWrap_CustomerDetails) Update(key string, msg *customerId.Details) error {
 	return c.job.Update(key, msg)
 }
 
-func Register__ViewSource(options runner.ServiceOptions, sychronizer _ViewSource, updateInterval time.Duration, syncTimeout time.Duration) (func(context.Context) func() error, error) {
+func Register_CustomerDetails_ViewSource(options runner.ServiceOptions, sychronizer CustomerDetails_ViewSource, updateInterval time.Duration, syncTimeout time.Duration) (func(context.Context) func() error, error) {
 	brokers := options.Brokers
 	protoWrapper := options.ProtoWrapper
 
@@ -99,7 +99,7 @@ func Register__ViewSource(options runner.ServiceOptions, sychronizer _ViewSource
 					case <-timer.C:
 						newContext, cancel := context.WithTimeout(gctx, syncTimeout)
 						c := runner.NewProtoViewSourceJob(newContext, view, emitter)
-						cw := &contextWrap_{newContext, c}
+						cw := &contextWrap_CustomerDetails{newContext, c}
 						err := sychronizer.Sync(cw)
 						if err != nil {
 							cancel()

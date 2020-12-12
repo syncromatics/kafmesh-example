@@ -146,8 +146,8 @@ func Register_EnrichedHeartbeatWarehouseSink_Sink(service *runner.Service, sink 
 	return nil
 }
 
-func Register_Assignments__ViewSource(service *runner.Service, viewSource assignments._ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
-	r, err := assignments.Register__ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
+func Register_Assignments_DeviceCustomer_ViewSource(service *runner.Service, viewSource assignments.DeviceCustomer_ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
+	r, err := assignments.Register_DeviceCustomer_ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
 	if err != nil {
 		return errors.Wrap(err, "failed to register viewSource")
 	}
@@ -157,7 +157,7 @@ func Register_Assignments__ViewSource(service *runner.Service, viewSource assign
 		return errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Assignments__ViewSource(service)
+	err = discover_Assignments_DeviceCustomer_ViewSource(service)
 	if err != nil {
 		return errors.Wrap(err, "failed to register with discovery")
 	}
@@ -165,8 +165,8 @@ func Register_Assignments__ViewSource(service *runner.Service, viewSource assign
 	return nil
 }
 
-func Register_Assignments__ViewSource(service *runner.Service, viewSource assignments._ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
-	r, err := assignments.Register__ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
+func Register_Assignments_CustomerDetails_ViewSource(service *runner.Service, viewSource assignments.CustomerDetails_ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
+	r, err := assignments.Register_CustomerDetails_ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
 	if err != nil {
 		return errors.Wrap(err, "failed to register viewSource")
 	}
@@ -176,7 +176,7 @@ func Register_Assignments__ViewSource(service *runner.Service, viewSource assign
 		return errors.Wrap(err, "failed to register runner with service")
 	}
 
-	err = discover_Assignments__ViewSource(service)
+	err = discover_Assignments_CustomerDetails_ViewSource(service)
 	if err != nil {
 		return errors.Wrap(err, "failed to register with discovery")
 	}

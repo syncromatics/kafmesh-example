@@ -250,7 +250,7 @@ func discover_Heartbeats_CurrentHealth_ViewSink(service *runner.Service) error {
 }
 
 
-func discover_Assignments__ViewSource(service *runner.Service) error {
+func discover_Assignments_DeviceCustomer_ViewSource(service *runner.Service) error {
 	source := runner.ViewSourceDiscovery{
 		ServiceDiscovery : runner.ServiceDiscovery {
 			Name: "kafmesh",
@@ -265,13 +265,13 @@ func discover_Assignments__ViewSource(service *runner.Service) error {
 			Topic: "kafmesh.deviceId.customer",
 			Type: 0,
 		},
-		Name: "",
+		Name: "device customer",
 		Description: "",
 	}
 
 	return service.RegisterViewSource(source)
 }
-func discover_Assignments__ViewSource(service *runner.Service) error {
+func discover_Assignments_CustomerDetails_ViewSource(service *runner.Service) error {
 	source := runner.ViewSourceDiscovery{
 		ServiceDiscovery : runner.ServiceDiscovery {
 			Name: "kafmesh",
@@ -286,7 +286,7 @@ func discover_Assignments__ViewSource(service *runner.Service) error {
 			Topic: "kafmesh.customerId.details",
 			Type: 0,
 		},
-		Name: "",
+		Name: "customer details",
 		Description: "",
 	}
 

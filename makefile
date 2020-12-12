@@ -1,6 +1,6 @@
 VERSION := $(shell gogitver)
 
-.PHONY: build unit-tests end-to-end-test test 
+.PHONY: build unit-tests end-to-end-test test
 
 build: clean
 	docker-compose \
@@ -44,4 +44,5 @@ generate-end-to-end:
 
 generate:
 	statik -f -src=./docs/migrations -dest=./internal/migrations
+	rm -rf ./internal/definitions
 	../kafmesh/artifacts/kafmesh-gen docs/kafmesh/definition.yml

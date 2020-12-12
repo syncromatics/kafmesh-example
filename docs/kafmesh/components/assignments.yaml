@@ -2,5 +2,7 @@ name: assignments
 description: The assignments component keeps the device to customer assignments up to date.
 
 viewSources:
-  - message: deviceId.customer
-  - message: customerId.details
+  - name: device customer
+    message: deviceId.customer
+  - name: customer details
+    message: customerId.details
