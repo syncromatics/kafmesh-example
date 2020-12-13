@@ -2,9 +2,9 @@ package assignments
 
 import (
 	"context"
-	"kafmesh-example/internal/data"
 	"kafmesh-example/internal/definitions/assignments"
 	models "kafmesh-example/internal/definitions/models/kafmesh/customerId"
+	"kafmesh-example/internal/warehouse"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -14,7 +14,7 @@ var _ assignments.CustomerDetails_ViewSource = &CustomerDetailsViewSource{}
 
 //go:generate mockgen -source=./customerDetails_viewSource.go -destination=./mocks/mock_customer_repo.go -package=mocks
 type customerRepo interface {
-	GetCustomerDetails(context.Context) ([]data.CustomerDetail, error)
+	GetCustomerDetails(context.Context) ([]warehouse.CustomerDetail, error)
 }
 
 // CustomerDetailsViewSource puts the latest customer details into kafka

@@ -128,12 +128,12 @@ func main() {
 }
 
 func configureGatewayService(service *runner.Service, server *grpc.Server) {
-	e, err := kafmesh.New_DeviceIdDetails_Emitter(service)
+	e, err := kafmesh.New_Details_DeviceIDDetails_Source(service)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	he, err := kafmesh.New_DeviceIdHeartbeat_Emitter(service)
+	he, err := kafmesh.New_Heartbeats_DeviceIDHeartbeat_Source(service)
 	if err != nil {
 		log.Fatal(err)
 	}

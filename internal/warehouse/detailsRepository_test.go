@@ -32,7 +32,7 @@ func Test_DetailsRepository_SaveDetails(t *testing.T) {
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",
@@ -66,7 +66,7 @@ func Test_DetailsRepository_SaveDetails_ShouldReturnERrorIfCommitFails(t *testin
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",
@@ -90,7 +90,7 @@ func Test_DetailsRepository_SaveDetails_ShouldReturnErrorIfBeginFails(t *testing
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Name:         "test device",
 			CustomerID:   12,
@@ -117,7 +117,7 @@ func Test_DetailsRepository_SaveDetails_ShouldReturnErrorIfPrepareContextFails(t
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",
@@ -149,7 +149,7 @@ func Test_DetailsRepository_SaveDetails_ShouldReturnErrorIfExecContextFails(t *t
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",
@@ -181,7 +181,7 @@ func Test_DetailsRepository_SaveDetails_ShouldReturnErrorIfCloseFails(t *testing
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",
@@ -256,6 +256,43 @@ func Test_DetailsRepository_LastDetails_ShouldReturnErrorIfQueryFails(t *testing
 	repository := warehouse.NewDetailsRepository(db)
 	_, err = repository.LastDetails(context.Background(), 7)
 	assert.ErrorContains(t, err, "failed to query details: boom")
+
+	err = mock.ExpectationsWereMet()
+	assert.NilError(t, err)
+}
+
+func Test_DetailsRepository_AllDetails(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NilError(t, err)
+	defer db.Close()
+
+	now := time.Now()
+	then := time.Now().Add(-1 * time.Hour)
+	rows := sqlmock.NewRows([]string{"device_id", "time", "name", "customer_id", "customer_name"}).
+		AddRow(int64(1), now, "device 1", int64(2), "customer 1").
+		AddRow(int64(3), then, "device 3", int64(4), "customer 4")
+
+	mock.ExpectQuery("select (.*) from device_details").WillReturnRows(rows)
+
+	subject := warehouse.NewDetailsRepository(db)
+	actual, err := subject.AllDetails(context.Background())
+	assert.NilError(t, err)
+	assert.DeepEqual(t, actual, []warehouse.Details{
+		{
+			DeviceID:     1,
+			Time:         now,
+			Name:         "device 1",
+			CustomerID:   2,
+			CustomerName: "customer 1",
+		},
+		{
+			DeviceID:     3,
+			Time:         then,
+			Name:         "device 3",
+			CustomerID:   4,
+			CustomerName: "customer 4",
+		},
+	})
 
 	err = mock.ExpectationsWereMet()
 	assert.NilError(t, err)

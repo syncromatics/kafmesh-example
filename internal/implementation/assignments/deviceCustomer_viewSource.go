@@ -2,9 +2,9 @@ package assignments
 
 import (
 	"context"
-	"kafmesh-example/internal/data"
 	"kafmesh-example/internal/definitions/assignments"
 	models "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/warehouse"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -14,7 +14,7 @@ var _ assignments.DeviceCustomer_ViewSource = &DeviceCustomerViewSource{}
 
 //go:generate mockgen -source=./deviceCustomerSink.go -destination=./mocks/mock_assignments_repo.go -package=mocks
 type assignmentRepo interface {
-	GetDeviceAssignments(context.Context) ([]data.DeviceAssignment, error)
+	AllDetails(context.Context) ([]warehouse.Details, error)
 }
 
 // DeviceCustomerViewSource puts the latest device assignments into kafka
@@ -31,7 +31,7 @@ func NewDeviceCustomerViewSource(repo assignmentRepo) *DeviceCustomerViewSource 
 
 // Sync outputs the latest device assignments to kafka
 func (vs *DeviceCustomerViewSource) Sync(ctx assignments.DeviceCustomer_ViewSource_Context) error {
-	assignments, err := vs.repo.GetDeviceAssignments(ctx)
+	assignments, err := vs.repo.AllDetails(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed getting device assignments from the database")
 	}

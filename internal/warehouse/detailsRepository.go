@@ -86,3 +86,30 @@ order by
 
 	return details, nil
 }
+
+// AllDetails retrieves all known device assignments
+func (r *DetailsRepository) AllDetails(ctx context.Context) ([]Details, error) {
+	query := `
+select
+	device_id, time, name, customer_id, customer_name from device_details
+order by
+	customer_id, device_id
+`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query device_details rows")
+	}
+	defer rows.Close()
+
+	details := []Details{}
+	for rows.Next() {
+		d := Details{}
+		err = rows.Scan(&d.DeviceID, &d.Time, &d.Name, &d.CustomerID, &d.CustomerName)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed scanning device_details")
+		}
+		details = append(details, d)
+	}
+
+	return details, nil
+}

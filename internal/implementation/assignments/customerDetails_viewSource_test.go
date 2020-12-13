@@ -1,11 +1,11 @@
 package assignments_test
 
 import (
-	"kafmesh-example/internal/data"
 	kmMocks "kafmesh-example/internal/definitions/assignments"
 	"kafmesh-example/internal/definitions/models/kafmesh/customerId"
 	"kafmesh-example/internal/implementation/assignments"
 	"kafmesh-example/internal/implementation/assignments/mocks"
+	"kafmesh-example/internal/warehouse"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -17,7 +17,7 @@ func Test_CustomerDetailsViewSource_Sync(t *testing.T) {
 
 	repo := mocks.NewMockcustomerRepo(ctrl)
 	repo.EXPECT().GetCustomerDetails(gomock.Any()).
-		Return([]data.CustomerDetail{
+		Return([]warehouse.CustomerDetail{
 			{
 				ID:   1,
 				Name: "some customer",

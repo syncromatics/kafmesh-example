@@ -1,9 +1,9 @@
 package assignments_test
 
 import (
-	"kafmesh-example/internal/data"
 	"kafmesh-example/internal/implementation/assignments"
 	"kafmesh-example/internal/implementation/assignments/mocks"
+	"kafmesh-example/internal/warehouse"
 	"testing"
 
 	kmMocks "kafmesh-example/internal/definitions/assignments"
@@ -17,8 +17,8 @@ func Test_DeviceCustomerViewSource_Sync(t *testing.T) {
 	defer ctrl.Finish()
 
 	repo := mocks.NewMockassignmentRepo(ctrl)
-	repo.EXPECT().GetDeviceAssignments(gomock.Any()).
-		Return([]data.DeviceAssignment{
+	repo.EXPECT().AllDetails(gomock.Any()).
+		Return([]warehouse.Details{
 			{
 				DeviceID:   1,
 				CustomerID: 2,

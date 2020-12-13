@@ -22,7 +22,9 @@ sinks:
     name: Enriched Heartbeat Warehouse Sink
     description: Sinks enriched device heartbeats to the warehouse database.
 
+# TODO: We need an aggregator for currentHealth
+
 viewSinks:
   - message: customerId.currentHealth
     name: Current Health
-    description: Aggregates current device health by customer. 
+    description: Aggregates current device health by customer.
