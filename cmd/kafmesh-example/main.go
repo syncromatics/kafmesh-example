@@ -125,12 +125,12 @@ func main() {
 }
 
 func configureGatewayService(service *runner.Service, server *grpc.Server) {
-	e, err := kafmesh.New_DeviceIdDetails_Emitter(service)
+	e, err := kafmesh.New_Details_DeviceIDDetails_Source(service)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	he, err := kafmesh.New_DeviceIdHeartbeat_Emitter(service)
+	he, err := kafmesh.New_Heartbeats_DeviceIDHeartbeat_Source(service)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -141,22 +141,22 @@ func configureGatewayService(service *runner.Service, server *grpc.Server) {
 }
 
 func configureAPIService(service *runner.Service, server *grpc.Server) {
-	e, err := kafmesh.New_DeviceIdCustomer_Emitter(service)
+	e, err := kafmesh.New_Assignments_DeviceIDCustomer_Source(service)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	v, err := kafmesh.New_DeviceIdCustomer_View(service)
+	v, err := kafmesh.New_Assignments_DeviceIDCustomer_View(service)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	de, err := kafmesh.New_CustomerIdDetails_Emitter(service)
+	de, err := kafmesh.New_Assignments_CustomerIDDetails_Source(service)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dv, err := kafmesh.New_CustomerIdDetails_View(service)
+	dv, err := kafmesh.New_Assignments_CustomerIDDetails_View(service)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func setupDetailsComponent(service *runner.Service, db *sql.DB) {
 
 	processor := details.NewEnricherProcessor()
 
-	err = kafmesh.Register_KafmeshDeviceIdEnrichedDetails_Processor(service, processor)
+	err = kafmesh.Register_Details_Enricher_Processor(service, processor)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -203,7 +203,7 @@ func setupHeartbeatsComponent(service *runner.Service, db *sql.DB) {
 
 	processor := heartbeats.NewProcessor()
 
-	err = kafmesh.Register_KafmeshDeviceIdEnrichedHeartbeat_Processor(service, processor)
+	err = kafmesh.Register_Heartbeats_HeartbeatEnricher_Processor(service, processor)
 	if err != nil {
 		log.Fatal(err)
 	}
