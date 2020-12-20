@@ -184,7 +184,7 @@ func setupDetailsComponent(service *runner.Service, db *sql.DB) {
 		log.Fatal(err)
 	}
 
-	processor := details.NewProcessor()
+	processor := details.NewEnricherProcessor()
 
 	err = kafmesh.Register_KafmeshDeviceIdEnrichedDetails_Processor(service, processor)
 	if err != nil {

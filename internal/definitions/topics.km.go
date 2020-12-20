@@ -12,16 +12,25 @@ import (
 var (
 	topics = []runner.Topic{
 		runner.Topic {
-			Name:       "kafmesh.deviceId.customer",
+			Name:       "kafmesh.customerId.details",
 			Partitions: 10,
 			Replicas:   1,
-			Compact:    false,
+			Compact:    true,
 			Retention:  86400000 * time.Millisecond,
 			Segment:    43200000 * time.Millisecond,
 			Create:     true,
 		},
 		runner.Topic {
-			Name:       "kafmesh.customerId.details",
+			Name:       "kafmesh.details.enricher-table",
+			Partitions: 10,
+			Replicas:   1,
+			Compact:    true,
+			Retention:  86400000 * time.Millisecond,
+			Segment:    43200000 * time.Millisecond,
+			Create:     true,
+		},
+		runner.Topic {
+			Name:       "kafmesh.deviceId.customer",
 			Partitions: 10,
 			Replicas:   1,
 			Compact:    false,
@@ -48,7 +57,7 @@ var (
 			Create:     true,
 		},
 		runner.Topic {
-			Name:       "kafmesh.deviceId.enrichedDetails-table",
+			Name:       "kafmesh.deviceId.enrichedHeartbeat",
 			Partitions: 10,
 			Replicas:   1,
 			Compact:    false,
@@ -58,15 +67,6 @@ var (
 		},
 		runner.Topic {
 			Name:       "kafmesh.deviceId.heartbeat",
-			Partitions: 10,
-			Replicas:   1,
-			Compact:    false,
-			Retention:  86400000 * time.Millisecond,
-			Segment:    43200000 * time.Millisecond,
-			Create:     true,
-		},
-		runner.Topic {
-			Name:       "kafmesh.deviceId.enrichedHeartbeat",
 			Partitions: 10,
 			Replicas:   1,
 			Compact:    false,

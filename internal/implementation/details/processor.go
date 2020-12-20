@@ -9,16 +9,18 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 )
 
-// Processor enriches device details with customer information
-type Processor struct{}
+var _ details.Enricher_Processor = &EnricherProcessor{}
 
-// NewProcessor creates a new processor
-func NewProcessor() *Processor {
-	return &Processor{}
+// EnricherProcessor enriches device details with customer information
+type EnricherProcessor struct{}
+
+// NewEnricherProcessor creates a new processor
+func NewEnricherProcessor() *EnricherProcessor {
+	return &EnricherProcessor{}
 }
 
-// HandleKafmeshDeviceIDDetails handles device details input
-func (p *Processor) HandleKafmeshDeviceIDDetails(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Details) error {
+// HandleDeviceIDDetails handles device details input
+func (p *EnricherProcessor) HandleDeviceIDDetails(ctx details.Enricher_ProcessorContext, message *deviceId.Details) error {
 	state := ctx.State()
 	state.Details = message
 
@@ -29,8 +31,8 @@ func (p *Processor) HandleKafmeshDeviceIDDetails(ctx details.KafmeshDeviceIdEnri
 	return nil
 }
 
-// HandleKafmeshDeviceIDCustomer handles device to customer input
-func (p *Processor) HandleKafmeshDeviceIDCustomer(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, message *deviceId.Customer) error {
+// HandleDeviceIDCustomer handles device to customer input
+func (p *EnricherProcessor) HandleDeviceIDCustomer(ctx details.Enricher_ProcessorContext, message *deviceId.Customer) error {
 	state := ctx.State()
 	state.CustomerId = &wrappers.Int64Value{Value: message.Id}
 
@@ -41,7 +43,7 @@ func (p *Processor) HandleKafmeshDeviceIDCustomer(ctx details.KafmeshDeviceIdEnr
 	return nil
 }
 
-func (p *Processor) output(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorContext, state *deviceId.EnrichedDetailsState) {
+func (p *EnricherProcessor) output(ctx details.Enricher_ProcessorContext, state *deviceId.EnrichedDetailsState) {
 	if state.CustomerId == nil {
 		return
 	}
@@ -50,12 +52,12 @@ func (p *Processor) output(ctx details.KafmeshDeviceIdEnrichedDetails_ProcessorC
 		return
 	}
 
-	customerDetails := ctx.Lookup_CustomerIdDetails(strconv.Itoa(int(state.CustomerId.Value)))
+	customerDetails := ctx.Lookup_CustomerIDDetails(strconv.Itoa(int(state.CustomerId.Value)))
 	if customerDetails == nil {
 		return
 	}
 
-	ctx.Output_DeviceIdEnrichedDetails(ctx.Key(), &deviceId.EnrichedDetails{
+	ctx.Output_DeviceIDEnrichedDetails(ctx.Key(), &deviceId.EnrichedDetails{
 		Time:         state.Details.Time,
 		Name:         state.Details.Name,
 		CustomerId:   state.CustomerId.Value,

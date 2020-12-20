@@ -3,159 +3,132 @@ package details_test
 import (
 	"testing"
 
+	mocks "kafmesh-example/internal/definitions/details"
 	"kafmesh-example/internal/definitions/models/kafmesh/customerId"
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 	"kafmesh-example/internal/implementation/details"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"google.golang.org/protobuf/proto"
 	"gotest.tools/assert"
 )
 
 func Test_Processor_ShouldNotOutputWithNullCustomer(t *testing.T) {
-	context := &contextMock{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	p := details.NewProcessor()
-	context.state = func() *deviceId.EnrichedDetailsState {
-		return &deviceId.EnrichedDetailsState{}
-	}
+	context := mocks.NewMockEnricher_ProcessorContext(ctrl)
 
-	var savedState *deviceId.EnrichedDetailsState
-	context.saveState = func(state *deviceId.EnrichedDetailsState) {
-		savedState = state
-	}
+	p := details.NewEnricherProcessor()
+	context.EXPECT().State().Return(&deviceId.EnrichedDetailsState{})
 
-	context.output_DeviceIdEnrichedDetails = func(string, *deviceId.EnrichedDetails) {
-		t.Fatal("should not output")
-	}
+	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
+		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
+			Details: &deviceId.Details{
+				Name: "testing",
+			},
+		})
+		assert.Assert(t, areEqual)
+	})
 
-	err := p.HandleKafmeshDeviceIDDetails(context, &deviceId.Details{
+	err := p.HandleDeviceIDDetails(context, &deviceId.Details{
 		Name: "testing",
 	})
 	assert.NilError(t, err)
-
-	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
-		Details: &deviceId.Details{
-			Name: "testing",
-		},
-	}))
 }
 
 func Test_Processor_ShouldNotOutputWithNullDetails(t *testing.T) {
-	context := &contextMock{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	p := details.NewProcessor()
-	context.state = func() *deviceId.EnrichedDetailsState {
-		return &deviceId.EnrichedDetailsState{}
-	}
+	context := mocks.NewMockEnricher_ProcessorContext(ctrl)
+	context.EXPECT().State().Return(&deviceId.EnrichedDetailsState{})
 
-	var savedState *deviceId.EnrichedDetailsState
-	context.saveState = func(state *deviceId.EnrichedDetailsState) {
-		savedState = state
-	}
+	p := details.NewEnricherProcessor()
 
-	context.output_DeviceIdEnrichedDetails = func(string, *deviceId.EnrichedDetails) {
-		t.Fatal("should not output")
-	}
+	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
+		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
+			CustomerId: &wrappers.Int64Value{Value: 42},
+		})
+		assert.Assert(t, areEqual)
+	})
 
-	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
+	err := p.HandleDeviceIDCustomer(context, &deviceId.Customer{
 		Id: 42,
 	})
 	assert.NilError(t, err)
-
-	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
-		CustomerId: &wrappers.Int64Value{Value: 42},
-	}))
 }
 
 func Test_Processor_ShouldNotOutputWithNullCustomerDetails(t *testing.T) {
-	context := &contextMock{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	p := details.NewProcessor()
-	context.state = func() *deviceId.EnrichedDetailsState {
-		return &deviceId.EnrichedDetailsState{
-			Details: &deviceId.Details{
-				Name: "testing",
-			},
-		}
-	}
-
-	var savedState *deviceId.EnrichedDetailsState
-	context.saveState = func(state *deviceId.EnrichedDetailsState) {
-		savedState = state
-	}
-
-	context.output_DeviceIdEnrichedDetails = func(string, *deviceId.EnrichedDetails) {
-		t.Fatal("should not output")
-	}
-
-	context.lookup_CustomerIdDetails = func(key string) *customerId.Details {
-		assert.Equal(t, key, "42")
-		return nil
-	}
-
-	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
-		Id: 42,
-	})
-	assert.NilError(t, err)
-
-	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
-		CustomerId: &wrappers.Int64Value{Value: 42},
+	p := details.NewEnricherProcessor()
+	context := mocks.NewMockEnricher_ProcessorContext(ctrl)
+	context.EXPECT().State().Return(&deviceId.EnrichedDetailsState{
 		Details: &deviceId.Details{
 			Name: "testing",
 		},
-	}))
+	})
+
+	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
+		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
+			CustomerId: &wrappers.Int64Value{Value: 42},
+			Details: &deviceId.Details{
+				Name: "testing",
+			},
+		})
+		assert.Assert(t, areEqual)
+	})
+
+	context.EXPECT().Lookup_CustomerIDDetails("42").Return(nil)
+
+	err := p.HandleDeviceIDCustomer(context, &deviceId.Customer{
+		Id: 42,
+	})
+	assert.NilError(t, err)
 }
 
 func Test_Processor_ShouldOutput(t *testing.T) {
-	context := &contextMock{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	p := details.NewProcessor()
-	context.state = func() *deviceId.EnrichedDetailsState {
-		return &deviceId.EnrichedDetailsState{
-			Details: &deviceId.Details{
-				Name: "testing",
-			},
-		}
-	}
-
-	var savedState *deviceId.EnrichedDetailsState
-	context.saveState = func(state *deviceId.EnrichedDetailsState) {
-		savedState = state
-	}
-
-	var output *deviceId.EnrichedDetails
-	var outputKey string
-	context.output_DeviceIdEnrichedDetails = func(key string, message *deviceId.EnrichedDetails) {
-		outputKey = key
-		output = message
-	}
-
-	context.lookup_CustomerIdDetails = func(key string) *customerId.Details {
-		assert.Equal(t, key, "42")
-		return &customerId.Details{
-			Name: "testing customer",
-		}
-	}
-
-	context.key = "423"
-
-	err := p.HandleKafmeshDeviceIDCustomer(context, &deviceId.Customer{
-		Id: 42,
-	})
-	assert.NilError(t, err)
-
-	assert.Assert(t, proto.Equal(savedState, &deviceId.EnrichedDetailsState{
-		CustomerId: &wrappers.Int64Value{Value: 42},
+	p := details.NewEnricherProcessor()
+	context := mocks.NewMockEnricher_ProcessorContext(ctrl)
+	context.EXPECT().State().Return(&deviceId.EnrichedDetailsState{
 		Details: &deviceId.Details{
 			Name: "testing",
 		},
-	}))
+	})
 
-	assert.Equal(t, outputKey, "423")
-	assert.Assert(t, proto.Equal(output, &deviceId.EnrichedDetails{
-		CustomerId:   42,
-		CustomerName: "testing customer",
-		Name:         "testing",
-	}))
+	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
+		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
+			CustomerId: &wrappers.Int64Value{Value: 42},
+			Details: &deviceId.Details{
+				Name: "testing",
+			},
+		})
+		assert.Assert(t, areEqual)
+	})
+
+	context.EXPECT().Output_DeviceIDEnrichedDetails("423", gomock.Any()).Do(func(key string, message *deviceId.EnrichedDetails) {
+		areEqual := proto.Equal(message, &deviceId.EnrichedDetails{
+			CustomerId:   42,
+			CustomerName: "testing customer",
+			Name:         "testing",
+		})
+		assert.Assert(t, areEqual)
+	})
+
+	context.EXPECT().Lookup_CustomerIDDetails("42").Return(&customerId.Details{
+		Name: "testing customer",
+	})
+
+	context.EXPECT().Key().Return("423")
+
+	err := p.HandleDeviceIDCustomer(context, &deviceId.Customer{
+		Id: 42,
+	})
+	assert.NilError(t, err)
 }
