@@ -10,7 +10,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"google.golang.org/protobuf/proto"
 	"gotest.tools/assert"
 )
 
@@ -23,13 +22,10 @@ func Test_Processor_ShouldNotOutputWithNullCustomer(t *testing.T) {
 	p := details.NewEnricherProcessor()
 	context.EXPECT().State().Return(&deviceId.EnrichedDetailsState{})
 
-	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
-		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
-			Details: &deviceId.Details{
-				Name: "testing",
-			},
-		})
-		assert.Assert(t, areEqual)
+	context.EXPECT().SaveState(&deviceId.EnrichedDetailsState{
+		Details: &deviceId.Details{
+			Name: "testing",
+		},
 	})
 
 	err := p.HandleDeviceIDDetails(context, &deviceId.Details{
@@ -47,11 +43,8 @@ func Test_Processor_ShouldNotOutputWithNullDetails(t *testing.T) {
 
 	p := details.NewEnricherProcessor()
 
-	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
-		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
-			CustomerId: &wrappers.Int64Value{Value: 42},
-		})
-		assert.Assert(t, areEqual)
+	context.EXPECT().SaveState(&deviceId.EnrichedDetailsState{
+		CustomerId: &wrappers.Int64Value{Value: 42},
 	})
 
 	err := p.HandleDeviceIDCustomer(context, &deviceId.Customer{
@@ -72,14 +65,11 @@ func Test_Processor_ShouldNotOutputWithNullCustomerDetails(t *testing.T) {
 		},
 	})
 
-	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
-		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
-			CustomerId: &wrappers.Int64Value{Value: 42},
-			Details: &deviceId.Details{
-				Name: "testing",
-			},
-		})
-		assert.Assert(t, areEqual)
+	context.EXPECT().SaveState(&deviceId.EnrichedDetailsState{
+		CustomerId: &wrappers.Int64Value{Value: 42},
+		Details: &deviceId.Details{
+			Name: "testing",
+		},
 	})
 
 	context.EXPECT().Lookup_CustomerIDDetails("42").Return(nil)
@@ -102,23 +92,17 @@ func Test_Processor_ShouldOutput(t *testing.T) {
 		},
 	})
 
-	context.EXPECT().SaveState(gomock.Any()).Do(func(state *deviceId.EnrichedDetailsState) {
-		areEqual := proto.Equal(state, &deviceId.EnrichedDetailsState{
-			CustomerId: &wrappers.Int64Value{Value: 42},
-			Details: &deviceId.Details{
-				Name: "testing",
-			},
-		})
-		assert.Assert(t, areEqual)
+	context.EXPECT().SaveState(&deviceId.EnrichedDetailsState{
+		CustomerId: &wrappers.Int64Value{Value: 42},
+		Details: &deviceId.Details{
+			Name: "testing",
+		},
 	})
 
-	context.EXPECT().Output_DeviceIDEnrichedDetails("423", gomock.Any()).Do(func(key string, message *deviceId.EnrichedDetails) {
-		areEqual := proto.Equal(message, &deviceId.EnrichedDetails{
-			CustomerId:   42,
-			CustomerName: "testing customer",
-			Name:         "testing",
-		})
-		assert.Assert(t, areEqual)
+	context.EXPECT().Output_DeviceIDEnrichedDetails("423", &deviceId.EnrichedDetails{
+		CustomerId:   42,
+		CustomerName: "testing customer",
+		Name:         "testing",
 	})
 
 	context.EXPECT().Lookup_CustomerIDDetails("42").Return(&customerId.Details{
