@@ -1,7 +1,6 @@
 package heartbeats_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 	"kafmesh-example/internal/implementation/heartbeats"
 	"kafmesh-example/internal/warehouse"
 
+	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	"github.com/syncromatics/kafmesh/pkg/runner"
@@ -16,19 +16,26 @@ import (
 )
 
 func Test_Sink_CollectandFlush(t *testing.T) {
-	repo := &repository{}
-
-	var savedHeartbeats []warehouse.Heartbeat
-	repo.saveHeartbeats = func(ctx context.Context, heartbeats []warehouse.Heartbeat) error {
-		savedHeartbeats = heartbeats
-		return nil
-	}
-
-	sink := heartbeats.NewWarehouseSink(repo)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockRepository(ctrl)
 
 	now := time.Now()
 	pnow, err := ptypes.TimestampProto(now)
 	assert.NilError(t, err)
+	resolvedNow, err := ptypes.Timestamp(pnow)
+	assert.NilError(t, err)
+	repo.EXPECT().SaveHeartbeats(gomock.Any(), []warehouse.Heartbeat{
+		{
+			DeviceID:     67,
+			Time:         resolvedNow,
+			IsHealthy:    true,
+			CustomerID:   42,
+			CustomerName: "testing customer",
+		},
+	})
+
+	sink := heartbeats.NewWarehouseSink(repo)
 
 	err = sink.Collect(runner.MessageContext{}, "67", &deviceId.EnrichedHeartbeat{
 		Time:         pnow,
@@ -40,20 +47,12 @@ func Test_Sink_CollectandFlush(t *testing.T) {
 
 	err = sink.Flush()
 	assert.NilError(t, err)
-
-	assert.DeepEqual(t, savedHeartbeats, []warehouse.Heartbeat{
-		warehouse.Heartbeat{
-			DeviceID:     67,
-			Time:         now,
-			IsHealthy:    true,
-			CustomerID:   42,
-			CustomerName: "testing customer",
-		},
-	})
 }
 
 func Test_Sink_CollectShouldFailWithBadKey(t *testing.T) {
-	repo := &repository{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockRepository(ctrl)
 
 	sink := heartbeats.NewWarehouseSink(repo)
 
@@ -62,10 +61,9 @@ func Test_Sink_CollectShouldFailWithBadKey(t *testing.T) {
 }
 
 func Test_Sink_FlushShouldFailWithNilTimestamp(t *testing.T) {
-	repo := &repository{}
-	repo.saveHeartbeats = func(ctx context.Context, details []warehouse.Heartbeat) error {
-		return errors.Errorf("boom")
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockRepository(ctrl)
 
 	sink := heartbeats.NewWarehouseSink(repo)
 
@@ -74,10 +72,10 @@ func Test_Sink_FlushShouldFailWithNilTimestamp(t *testing.T) {
 }
 
 func Test_Sink_FlushShouldFailWhenRepoFails(t *testing.T) {
-	repo := &repository{}
-	repo.saveHeartbeats = func(ctx context.Context, details []warehouse.Heartbeat) error {
-		return errors.Errorf("boom")
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockRepository(ctrl)
+	repo.EXPECT().SaveHeartbeats(gomock.Any(), gomock.Any()).Return(errors.Errorf("boom"))
 
 	sink := heartbeats.NewWarehouseSink(repo)
 

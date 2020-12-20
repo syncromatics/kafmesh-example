@@ -7,6 +7,8 @@ import (
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
+var _ heartbeats.HeartbeatEnricher_Processor = &Processor{}
+
 // Processor enriches device details with customer information
 type Processor struct{}
 
@@ -15,20 +17,20 @@ func NewProcessor() *Processor {
 	return &Processor{}
 }
 
-// HandleKafmeshDeviceIDHeartbeat handles device heartbeat input
-func (p *Processor) HandleKafmeshDeviceIDHeartbeat(ctx heartbeats.KafmeshDeviceIdEnrichedHeartbeat_ProcessorContext, message *deviceId.Heartbeat) error {
-	customer := ctx.Join_DeviceIdCustomer()
+// HandleDeviceIDHeartbeat handles device heartbeat input
+func (p *Processor) HandleDeviceIDHeartbeat(ctx heartbeats.HeartbeatEnricher_ProcessorContext, message *deviceId.Heartbeat) error {
+	customer := ctx.Join_DeviceIDCustomer()
 
 	if customer == nil {
 		return nil
 	}
 
-	customerDetails := ctx.Lookup_CustomerIdDetails(strconv.Itoa(int(customer.Id)))
+	customerDetails := ctx.Lookup_CustomerIDDetails(strconv.Itoa(int(customer.Id)))
 	if customerDetails == nil {
 		return nil
 	}
 
-	ctx.Output_DeviceIdEnrichedHeartbeat(ctx.Key(), &deviceId.EnrichedHeartbeat{
+	ctx.Output_DeviceIDEnrichedHeartbeat(ctx.Key(), &deviceId.EnrichedHeartbeat{
 		Time:         message.Time,
 		IsHealthy:    message.IsHealthy,
 		CustomerId:   customer.Id,

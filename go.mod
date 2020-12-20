@@ -7,7 +7,6 @@ require (
 	github.com/DATA-DOG/godog v0.7.13
 	github.com/Shopify/sarama v1.26.1
 	github.com/burdiyan/kafkautil v0.0.0-20190131162249-eaf83ed22d5b
-	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.4.1
 	github.com/golang/protobuf v1.4.1
 	github.com/lib/pq v1.3.0
