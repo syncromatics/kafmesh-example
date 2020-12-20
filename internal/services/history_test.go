@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 
 	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
@@ -16,28 +18,19 @@ import (
 	"gotest.tools/assert"
 )
 
-type detailsRepository struct {
-	lastDetails func(ctx context.Context, deviceID int64) (*warehouse.Details, error)
-}
-
-func (r *detailsRepository) LastDetails(ctx context.Context, deviceID int64) (*warehouse.Details, error) {
-	return r.lastDetails(ctx, deviceID)
-}
-
 func Test_HistoryService_LastDetails_ShouldReturnDetails(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockDetailsRepository(ctrl)
 	now := time.Now()
-	repo := &detailsRepository{
-		lastDetails: func(ctx context.Context, deviceID int64) (*warehouse.Details, error) {
-			assert.Equal(t, deviceID, int64(12))
-			return &warehouse.Details{
-				CustomerID:   42,
-				CustomerName: "testing customer",
-				DeviceID:     12,
-				Name:         "stuff",
-				Time:         now,
-			}, nil
-		},
-	}
+
+	repo.EXPECT().LastDetails(gomock.Any(), int64(12)).Return(&warehouse.Details{
+		CustomerID:   42,
+		CustomerName: "testing customer",
+		DeviceID:     12,
+		Name:         "stuff",
+		Time:         now,
+	}, nil)
 
 	service := services.NewHistoryAPI(repo, nil)
 
@@ -47,7 +40,7 @@ func Test_HistoryService_LastDetails_ShouldReturnDetails(t *testing.T) {
 	assert.NilError(t, err)
 
 	tt, _ := ptypes.TimestampProto(now)
-	assert.DeepEqual(t, r, &historyv1.LastDetailsResponse{
+	areEqual := proto.Equal(r, &historyv1.LastDetailsResponse{
 		Response: &historyv1.LastDetailsResponse_ResponseDetails{
 			ResponseDetails: &historyv1.Details{
 				CustomerId:   42,
@@ -57,15 +50,14 @@ func Test_HistoryService_LastDetails_ShouldReturnDetails(t *testing.T) {
 			},
 		},
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_HistoryService_LastDetails_ShouldReturnNoneIfNoDetails(t *testing.T) {
-	repo := &detailsRepository{
-		lastDetails: func(ctx context.Context, deviceID int64) (*warehouse.Details, error) {
-			assert.Equal(t, deviceID, int64(12))
-			return nil, nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockDetailsRepository(ctrl)
+	repo.EXPECT().LastDetails(gomock.Any(), int64(12)).Return(nil, nil)
 
 	service := services.NewHistoryAPI(repo, nil)
 
@@ -74,20 +66,19 @@ func Test_HistoryService_LastDetails_ShouldReturnNoneIfNoDetails(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &historyv1.LastDetailsResponse{
+	areEqual := proto.Equal(r, &historyv1.LastDetailsResponse{
 		Response: &historyv1.LastDetailsResponse_ResponseNone{
 			ResponseNone: &historyv1.None{},
 		},
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_HistoryService_LastDetails_ShouldReturnErrorIfRepoFails(t *testing.T) {
-	repo := &detailsRepository{
-		lastDetails: func(ctx context.Context, deviceID int64) (*warehouse.Details, error) {
-			assert.Equal(t, deviceID, int64(12))
-			return nil, errors.Errorf("boom")
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := NewMockDetailsRepository(ctrl)
+	repo.EXPECT().LastDetails(gomock.Any(), int64(12)).Return(nil, errors.Errorf("boom"))
 
 	service := services.NewHistoryAPI(repo, nil)
 
@@ -97,31 +88,20 @@ func Test_HistoryService_LastDetails_ShouldReturnErrorIfRepoFails(t *testing.T) 
 	assert.ErrorContains(t, err, "failed to get last details from repository: boom")
 }
 
-type heartbeatsRepository struct {
-	lastHeartbeat func(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error)
-}
-
-func (r *heartbeatsRepository) LastHeartbeat(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error) {
-	return r.lastHeartbeat(ctx, deviceID)
-}
-
 func Test_HistoryService_LastHeartbeat_ShouldReturnLastHeartbeat(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 	now := time.Now()
 	tNow, _ := ptypes.TimestampProto(now)
 
-	repo := &heartbeatsRepository{
-		lastHeartbeat: func(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error) {
-			assert.Equal(t, deviceID, int64(45))
-
-			return &warehouse.Heartbeat{
-				Time:         now,
-				IsHealthy:    true,
-				DeviceID:     45,
-				CustomerID:   67,
-				CustomerName: "testing customer",
-			}, nil
-		},
-	}
+	repo := NewMockHeartbeatsRepository(ctrl)
+	repo.EXPECT().LastHeartbeat(gomock.Any(), int64(45)).Return(&warehouse.Heartbeat{
+		Time:         now,
+		IsHealthy:    true,
+		DeviceID:     45,
+		CustomerID:   67,
+		CustomerName: "testing customer",
+	}, nil)
 
 	service := services.NewHistoryAPI(nil, repo)
 
@@ -130,7 +110,7 @@ func Test_HistoryService_LastHeartbeat_ShouldReturnLastHeartbeat(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &historyv1.LastHeartbeatResponse{
+	areEqual := proto.Equal(r, &historyv1.LastHeartbeatResponse{
 		Response: &historyv1.LastHeartbeatResponse_ResponseHeartbeat{
 			ResponseHeartbeat: &historyv1.Heartbeat{
 				Time:         tNow,
@@ -140,16 +120,15 @@ func Test_HistoryService_LastHeartbeat_ShouldReturnLastHeartbeat(t *testing.T) {
 			},
 		},
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_HistoryService_LastHeartbeat_ShouldReturnNoneIfNoHeartbeat(t *testing.T) {
-	repo := &heartbeatsRepository{
-		lastHeartbeat: func(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error) {
-			assert.Equal(t, deviceID, int64(45))
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return nil, nil
-		},
-	}
+	repo := NewMockHeartbeatsRepository(ctrl)
+	repo.EXPECT().LastHeartbeat(gomock.Any(), int64(45)).Return(nil, nil)
 
 	service := services.NewHistoryAPI(nil, repo)
 
@@ -158,21 +137,20 @@ func Test_HistoryService_LastHeartbeat_ShouldReturnNoneIfNoHeartbeat(t *testing.
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &historyv1.LastHeartbeatResponse{
+	areEqual := proto.Equal(r, &historyv1.LastHeartbeatResponse{
 		Response: &historyv1.LastHeartbeatResponse_ResponseNone{
 			ResponseNone: &historyv1.None{},
 		},
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_HistoryService_LastHeartbeat_ShouldReturnErrorIfRepoFails(t *testing.T) {
-	repo := &heartbeatsRepository{
-		lastHeartbeat: func(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error) {
-			assert.Equal(t, deviceID, int64(45))
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return nil, errors.Errorf("boom")
-		},
-	}
+	repo := NewMockHeartbeatsRepository(ctrl)
+	repo.EXPECT().LastHeartbeat(gomock.Any(), int64(45)).Return(nil, errors.Errorf("boom"))
 
 	service := services.NewHistoryAPI(nil, repo)
 
@@ -183,15 +161,13 @@ func Test_HistoryService_LastHeartbeat_ShouldReturnErrorIfRepoFails(t *testing.T
 }
 
 func Test_HistoryService_LastHeartbeat_ShouldReturnErrorIfTimestampFails(t *testing.T) {
-	repo := &heartbeatsRepository{
-		lastHeartbeat: func(ctx context.Context, deviceID int64) (*warehouse.Heartbeat, error) {
-			assert.Equal(t, deviceID, int64(45))
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return &warehouse.Heartbeat{
-				Time: time.Unix(math.MaxInt64, math.MaxInt64),
-			}, nil
-		},
-	}
+	repo := NewMockHeartbeatsRepository(ctrl)
+	repo.EXPECT().LastHeartbeat(gomock.Any(), int64(45)).Return(&warehouse.Heartbeat{
+		Time: time.Unix(math.MaxInt64, math.MaxInt64),
+	}, nil)
 
 	service := services.NewHistoryAPI(nil, repo)
 

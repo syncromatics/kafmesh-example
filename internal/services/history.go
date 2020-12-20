@@ -10,6 +10,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate mockgen -source=./history.go -destination=./history_mock_test.go -package=services_test
+
 // DetailsRepository gets the last details from the warehouse
 type DetailsRepository interface {
 	LastDetails(context.Context, int64) (*warehouse.Details, error)
