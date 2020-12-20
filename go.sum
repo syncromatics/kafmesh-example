@@ -71,8 +71,6 @@ github.com/coreos/go-semver v0.2.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3Ee
 github.com/cpuguy83/go-md2man v1.0.10/go.mod h1:SmD6nW6nTyfqj6ABTjUi3V3JVMnlJmwcJI5acqYI6dE=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/cucumber/gherkin-go v5.1.0+incompatible h1:RCvyVI6KQLI2IJkijZBeJcE4K3U7DnhQ1RjD7VV+AIk=
-github.com/cucumber/gherkin-go v5.1.0+incompatible/go.mod h1:bYJ65F+CDEAL70FXAu7/ef4ayC/NhRXO8zEW3IB21w0=
 github.com/cucumber/gherkin-go/v11 v11.0.0 h1:cwVwN1Qn2VRSfHZNLEh5x00tPBmZcjATBWDpxsR5Xug=
 github.com/cucumber/gherkin-go/v11 v11.0.0/go.mod h1:CX33k2XU2qog4e+TFjOValoq6mIUq0DmVccZs238R9w=
 github.com/cucumber/godog v0.10.0 h1:W01u1+o8bRpgqJRLrclN3iAanU1jAao+TwOMoSV9g1Y=
@@ -406,6 +404,8 @@ github.com/syncromatics/go-kit v1.3.0 h1:xLGdFR2MsUMvWuDYrw66vtSLr0YB8msGh9agyHz
 github.com/syncromatics/go-kit v1.3.0/go.mod h1:pyk8uW+NsCgTc4TKD8smjKmjgucAuSitg8NBVJ3sjUM=
 github.com/syncromatics/kafmesh v0.17.1-0.20200805164037-e2ee5025ed0d h1:9mcMP12dfdR66dWvJhJIyWsef8BzUkU3ZGOiMpkdw3c=
 github.com/syncromatics/kafmesh v0.17.1-0.20200805164037-e2ee5025ed0d/go.mod h1:ppPRMQZXs7ezPv42zne2YQsBqSGOfXughbReW3v8mPc=
+github.com/syncromatics/kafmesh v0.17.1-0.20201220174413-97ab72b2d3fe h1:FmYW5Jg/qbwV7jj1k5sG1/7NeJ73T8xNW0cki6MEkTo=
+github.com/syncromatics/kafmesh v0.17.1-0.20201220174413-97ab72b2d3fe/go.mod h1:ppPRMQZXs7ezPv42zne2YQsBqSGOfXughbReW3v8mPc=
 github.com/syncromatics/proto-schema-registry v0.7.2 h1:pL/l54WM+X8qXNJLQUioyrNIgZg3iw09qMGv4jbhkTU=
 github.com/syncromatics/proto-schema-registry v0.7.2/go.mod h1:w+0RMnAXC0TAbdrRx2fkN9bB1qnKY2FmNBL+5NFunSA=
 github.com/syncromatics/proto-schema-registry v0.7.3 h1:saVhr6wDESSP9PE0Vvt4gHB9uLlZClfAtgk+DPy2dK0=

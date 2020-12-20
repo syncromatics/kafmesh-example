@@ -91,7 +91,10 @@ func Register_HeartbeatEnricher_Processor(service *runner.Service, impl Heartbea
 	protoWrapper := options.ProtoWrapper
 
 	config := sarama.NewConfig()
+	config.Version = sarama.MaxVersion
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
+	config.Consumer.Offsets.AutoCommit.Enable = true
+	config.Consumer.Offsets.CommitInterval = 1 * time.Second
 
 	opts := &opt.Options{
 		BlockCacheCapacity: opt.MiB * 1,
