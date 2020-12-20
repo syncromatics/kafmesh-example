@@ -9,8 +9,9 @@ import (
 	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
 	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
 
-	"github.com/DATA-DOG/godog"
-	"github.com/DATA-DOG/godog/gherkin"
+	gherkin "github.com/cucumber/gherkin-go"
+	"github.com/cucumber/godog"
+	"github.com/cucumber/messages-go/v10"
 	"github.com/syncromatics/kafmesh/pkg/runner"
 	"google.golang.org/grpc"
 )
@@ -155,7 +156,7 @@ func FeatureContext(s *godog.Suite) {
 		history = historyv1.NewHistoryAPIClient(con)
 	})
 
-	s.BeforeScenario(func(interface{}) {
+	s.BeforeScenario(func(*messages.Pickle) {
 		details = testDetails{}
 	})
 

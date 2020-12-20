@@ -32,7 +32,7 @@ func Test_HeartbeatRepository_SaveHeartbeats(t *testing.T) {
 	repository := warehouse.NewHeartbeatRepository(db)
 
 	err = repository.SaveHeartbeats(context.Background(), []warehouse.Heartbeat{
-		warehouse.Heartbeat{
+		{
 			DeviceID:     42,
 			Time:         now,
 			IsHealthy:    true,
@@ -66,7 +66,7 @@ func Test_HeartbeatRepository_SaveHeartbeats_ShouldReturnErrorIfCommitFails(t *t
 	repository := warehouse.NewHeartbeatRepository(db)
 
 	err = repository.SaveHeartbeats(context.Background(), []warehouse.Heartbeat{
-		warehouse.Heartbeat{
+		{
 			DeviceID:     42,
 			Time:         now,
 			IsHealthy:    true,
@@ -92,7 +92,7 @@ func Test_HeartbeatRepository_SaveHeartbeats_ShouldReturnErrorIfBeginFails(t *te
 	repository := warehouse.NewHeartbeatRepository(db)
 
 	err = repository.SaveHeartbeats(context.Background(), []warehouse.Heartbeat{
-		warehouse.Heartbeat{
+		{
 			DeviceID:     42,
 			Time:         now,
 			IsHealthy:    true,
@@ -122,7 +122,7 @@ func Test_HeartbeatRepository_SaveHeartbeats_ShouldReturnErrorIfPrepareFails(t *
 	repository := warehouse.NewHeartbeatRepository(db)
 
 	err = repository.SaveHeartbeats(context.Background(), []warehouse.Heartbeat{
-		warehouse.Heartbeat{
+		{
 			DeviceID:     42,
 			Time:         now,
 			IsHealthy:    true,
@@ -156,7 +156,7 @@ func Test_HeartbeatRepository_SaveHeartbeats_ShouldReturnErrorIfExecFails(t *tes
 	repository := warehouse.NewHeartbeatRepository(db)
 
 	err = repository.SaveHeartbeats(context.Background(), []warehouse.Heartbeat{
-		warehouse.Heartbeat{
+		{
 			DeviceID:     42,
 			Time:         now,
 			IsHealthy:    true,
@@ -190,7 +190,7 @@ func Test_HeartbeatRepository_SaveHeartbeats_ShouldReturnErrorOncloseFailure(t *
 	repository := warehouse.NewHeartbeatRepository(db)
 
 	err = repository.SaveHeartbeats(context.Background(), []warehouse.Heartbeat{
-		warehouse.Heartbeat{
+		{
 			DeviceID:     42,
 			Time:         now,
 			IsHealthy:    true,

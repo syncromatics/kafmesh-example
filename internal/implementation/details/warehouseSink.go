@@ -15,6 +15,7 @@ import (
 )
 
 //go:generate mockgen -source=./warehouseSink.go -destination=./warehouseSink_mock_test.go -package=details_test
+
 // Repository is the repository to the warehouse.
 type Repository interface {
 	SaveDetails(ctx context.Context, details []warehouse.Details) error

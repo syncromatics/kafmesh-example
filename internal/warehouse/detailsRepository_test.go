@@ -32,7 +32,7 @@ func Test_DetailsRepository_SaveDetails(t *testing.T) {
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",
@@ -66,7 +66,7 @@ func Test_DetailsRepository_SaveDetails_ShouldReturnERrorIfCommitFails(t *testin
 	repository := warehouse.NewDetailsRepository(db)
 
 	err = repository.SaveDetails(context.Background(), []warehouse.Details{
-		warehouse.Details{
+		{
 			DeviceID:     42,
 			Time:         now,
 			Name:         "test device",

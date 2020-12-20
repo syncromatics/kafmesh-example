@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 
-	"github.com/DATA-DOG/godog/gherkin"
+	gherkin "github.com/cucumber/gherkin-go"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 )
