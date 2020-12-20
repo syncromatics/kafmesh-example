@@ -15,23 +15,23 @@ import (
 
 // APIService is the service that provides device configuration management
 type APIService struct {
-	emitter        assignments.DeviceIdCustomer_Emitter
-	view           assignments.DeviceIdCustomer_View
-	detailsEmitter assignments.CustomerIdDetails_Emitter
-	detailsView    assignments.CustomerIdDetails_View
+	source        assignments.DeviceIDCustomer_Source
+	view          assignments.DeviceIDCustomer_View
+	detailsSource assignments.CustomerIDDetails_Source
+	detailsView   assignments.CustomerIDDetails_View
 }
 
 // NewAPIService creates a new api service
 func NewAPIService(
-	emitter assignments.DeviceIdCustomer_Emitter,
-	view assignments.DeviceIdCustomer_View,
-	detailsEmitter assignments.CustomerIdDetails_Emitter,
-	detailsView assignments.CustomerIdDetails_View) *APIService {
+	source assignments.DeviceIDCustomer_Source,
+	view assignments.DeviceIDCustomer_View,
+	detailsEmitter assignments.CustomerIDDetails_Source,
+	detailsView assignments.CustomerIDDetails_View) *APIService {
 	return &APIService{
-		emitter:        emitter,
-		view:           view,
-		detailsEmitter: detailsEmitter,
-		detailsView:    detailsView,
+		source:        source,
+		view:          view,
+		detailsSource: detailsEmitter,
+		detailsView:   detailsView,
 	}
 }
 
@@ -53,7 +53,7 @@ func (s *APIService) GetAssignment(ctx context.Context, request *apiv1.GetAssign
 
 // AssignDevice assigns the device to a customer
 func (s *APIService) AssignDevice(ctx context.Context, request *apiv1.AssignDeviceRequest) (*apiv1.AssignDeviceResponse, error) {
-	err := s.emitter.Emit(assignments.DeviceIdCustomer_Emitter_Message{
+	err := s.source.Emit(assignments.DeviceIDCustomer_Source_Message{
 		Key: strconv.Itoa(int(request.DeviceId)),
 		Value: &deviceId.Customer{
 			Id: request.CustomerId,
@@ -83,7 +83,7 @@ func (s *APIService) GetCustomerDetails(ctx context.Context, request *apiv1.GetC
 
 // UpdateCustomerDetails updates the customer's details
 func (s *APIService) UpdateCustomerDetails(ctx context.Context, request *apiv1.UpdateCustomerDetailsRequest) (*apiv1.UpdateCustomerDetailsResponse, error) {
-	err := s.detailsEmitter.Emit(assignments.CustomerIdDetails_Emitter_Message{
+	err := s.detailsSource.Emit(assignments.CustomerIDDetails_Source_Message{
 		Key: strconv.Itoa(int(request.CustomerId)),
 		Value: &customerId.Details{
 			Name: request.Name,
