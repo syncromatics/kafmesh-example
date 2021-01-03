@@ -21,6 +21,15 @@ var (
 			Create:     true,
 		},
 		runner.Topic {
+			Name:       "kafmesh.customerId.egressEndpoint",
+			Partitions: 10,
+			Replicas:   1,
+			Compact:    true,
+			Retention:  86400000 * time.Millisecond,
+			Segment:    43200000 * time.Millisecond,
+			Create:     true,
+		},
+		runner.Topic {
 			Name:       "kafmesh.details.enricher-table",
 			Partitions: 10,
 			Replicas:   1,

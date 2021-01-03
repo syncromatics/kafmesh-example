@@ -5,6 +5,7 @@ package kafmesh.api.v1;
 option csharp_namespace = "Kafmesh.Api.V1";
 option go_package = "apiv1";
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
 service Api {
@@ -12,6 +13,8 @@ service Api {
     rpc AssignDevice(AssignDeviceRequest) returns (AssignDeviceResponse);
     rpc UpdateCustomerDetails(UpdateCustomerDetailsRequest) returns (UpdateCustomerDetailsResponse);
     rpc GetCustomerDetails(GetCustomerDetailsRequest) returns (GetCustomerDetailsResponse);
+    rpc GetEgressEndpoint(GetEgressEndpointRequest) returns (GetEgressEndpointResponse);
+    rpc SetEgressEndpoint(SetEgressEndpointRequest) returns (SetEgressEndpointResponse);
 }
 
 message GetAssignmentRequest {
@@ -47,3 +50,21 @@ message GetCustomerDetailsRequest {
 message GetCustomerDetailsResponse {
     google.protobuf.StringValue name = 1;
 }
+
+message GetEgressEndpointRequest {
+    int64 customer_id = 1;
+}
+
+message GetEgressEndpointResponse {
+    oneof response {
+        google.protobuf.Empty response_none = 1;
+        string response_url = 2;
+    }
+}
+
+message SetEgressEndpointRequest {
+    int64 customer_id = 1;
+    string url = 2;
+}
+
+message SetEgressEndpointResponse {}

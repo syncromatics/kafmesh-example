@@ -305,3 +305,24 @@ func discover_Details_DeviceIDEnrichedDetails_View(service *runner.Service) erro
 
 
 
+func discover_Egress_Egress_ViewSource(service *runner.Service) error {
+	source := runner.ViewSourceDiscovery{
+		ServiceDiscovery : runner.ServiceDiscovery {
+			Name: "kafmesh",
+			Description: "Kafmesh service is an example service to test kafmesh.",
+		},
+		ComponentDiscovery: runner.ComponentDiscovery{
+			Name: "egress",
+			Description: "Posts known customer devices to external services.",
+		},
+		TopicDiscovery: runner.TopicDiscovery{
+			Message: "kafmesh.customerId.egressEndpoint",
+			Topic: "kafmesh.customerId.egressEndpoint",
+			Type: 0,
+		},
+		Name: "egress",
+		Description: "",
+	}
+
+	return service.RegisterViewSource(source)
+}

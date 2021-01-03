@@ -1,0 +1,7 @@
+name: egress
+description: Posts known customer devices to external services.
+
+viewSources:
+  - name: egress
+    message: customerId.egressEndpoint
+

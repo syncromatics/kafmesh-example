@@ -10,6 +10,7 @@ import (
 
 	"kafmesh-example/internal/definitions/assignments"
 	"kafmesh-example/internal/definitions/details"
+	"kafmesh-example/internal/definitions/egress"
 	"kafmesh-example/internal/definitions/heartbeats"
 )
 
@@ -215,6 +216,25 @@ func Register_EnrichedHeartbeatWarehouseSink_Sink(service *runner.Service, sink 
 	}
 
 	err = discover_Heartbeats_DeviceIDEnrichedHeartbeat_Sink(service)
+	if err != nil {
+		return errors.Wrap(err, "failed to register with discovery")
+	}
+
+	return nil
+}
+
+func Register_Egress_Egress_ViewSource(service *runner.Service, viewSource egress.Egress_ViewSource, updateInterval time.Duration, syncTimeout time.Duration) error {
+	r, err := egress.Register_Egress_ViewSource(service.Options(), viewSource, updateInterval, syncTimeout)
+	if err != nil {
+		return errors.Wrap(err, "failed to register viewSource")
+	}
+
+	err = service.RegisterRunner(r)
+	if err != nil {
+		return errors.Wrap(err, "failed to register runner with service")
+	}
+
+	err = discover_Egress_Egress_ViewSource(service)
 	if err != nil {
 		return errors.Wrap(err, "failed to register with discovery")
 	}

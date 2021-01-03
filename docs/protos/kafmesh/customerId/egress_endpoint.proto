@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package kafmesh.customerId;
+option go_package = "customerId";
+
+message EgressEndpoint {
+  string endpoint = 1;
+}
