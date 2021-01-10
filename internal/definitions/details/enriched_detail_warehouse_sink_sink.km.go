@@ -11,7 +11,7 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	deviceId "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
 type EnrichedDetailWarehouseSink_Sink interface {
@@ -73,7 +73,7 @@ func Register_EnrichedDetailWarehouseSink_Sink(options runner.ServiceOptions, si
 	d := &impl_EnrichedDetailWarehouseSink_Sink{
 		sink: sink,
 		codec: codec,
-		group: "enricheddetailwarehousesink-sink",
+		group: "kafmesh.details.enricheddetailwarehousesink-sink",
 		topic: "kafmesh.deviceId.enrichedDetails",
 		maxBufferSize: maxBufferSize,
 		interval: interval,

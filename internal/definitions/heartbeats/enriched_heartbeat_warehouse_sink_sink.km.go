@@ -11,7 +11,7 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	deviceId "kafmesh-example/internal/definitions/models/kafmesh/deviceId"
+	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
 type EnrichedHeartbeatWarehouseSink_Sink interface {
@@ -73,7 +73,7 @@ func Register_EnrichedHeartbeatWarehouseSink_Sink(options runner.ServiceOptions,
 	d := &impl_EnrichedHeartbeatWarehouseSink_Sink{
 		sink: sink,
 		codec: codec,
-		group: "enrichedheartbeatwarehousesink-sink",
+		group: "kafmesh.heartbeats.enrichedheartbeatwarehousesink-sink",
 		topic: "kafmesh.deviceId.enrichedHeartbeat",
 		maxBufferSize: maxBufferSize,
 		interval: interval,

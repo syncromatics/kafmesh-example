@@ -9,8 +9,8 @@ import (
 	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
 	historyv1 "kafmesh-example/internal/definitions/models/kafmesh/history/v1"
 
-	"github.com/DATA-DOG/godog"
-	"github.com/DATA-DOG/godog/gherkin"
+	"github.com/cucumber/godog"
+	"github.com/cucumber/messages-go/v10"
 	"github.com/syncromatics/kafmesh/pkg/runner"
 	"google.golang.org/grpc"
 )
@@ -30,7 +30,7 @@ type testDetails struct {
 	heartbeat *Heartbeat
 }
 
-func thereIsADevice(arg1 *gherkin.DataTable) error {
+func thereIsADevice(arg1 *messages.PickleStepArgument_PickleTable) error {
 	d, err := NewDevice(arg1)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func thereIsADevice(arg1 *gherkin.DataTable) error {
 	return nil
 }
 
-func itIsAssignedToCustomer(arg1 *gherkin.DataTable) error {
+func itIsAssignedToCustomer(arg1 *messages.PickleStepArgument_PickleTable) error {
 	c, err := NewCustomer(arg1)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func itIsAssignedToCustomer(arg1 *gherkin.DataTable) error {
 	return nil
 }
 
-func itSendsDetailsToTheGateway(arg1 *gherkin.DataTable) error {
+func itSendsDetailsToTheGateway(arg1 *messages.PickleStepArgument_PickleTable) error {
 	d, err := NewDetails(arg1)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func theDetailsShouldNotBeSavedToTheWarehouse() error {
 	return WaitForNoDetails(ctx, history, details.device.ID)
 }
 
-func itSendsAHeartbeatToTheGateway(arg1 *gherkin.DataTable) error {
+func itSendsAHeartbeatToTheGateway(arg1 *messages.PickleStepArgument_PickleTable) error {
 	h, err := NewHeartbeat(arg1)
 	if err != nil {
 		return err
@@ -155,7 +155,7 @@ func FeatureContext(s *godog.Suite) {
 		history = historyv1.NewHistoryAPIClient(con)
 	})
 
-	s.BeforeScenario(func(interface{}) {
+	s.BeforeScenario(func(*messages.Pickle) {
 		details = testDetails{}
 	})
 

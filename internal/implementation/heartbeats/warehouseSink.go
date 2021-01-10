@@ -13,6 +13,8 @@ import (
 	"github.com/syncromatics/kafmesh/pkg/runner"
 )
 
+//go:generate mockgen -source=./warehouseSink.go -destination=./warehouseSink_mock_test.go -package=heartbeats_test
+
 // Repository saves heartbeats to the warehouse
 type Repository interface {
 	SaveHeartbeats(context.Context, []warehouse.Heartbeat) error

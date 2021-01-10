@@ -10,41 +10,47 @@ import (
 	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 	"kafmesh-example/internal/services"
 
+	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/pkg/errors"
 	"gotest.tools/assert"
 )
 
 func Test_API_GetAssignment(t *testing.T) {
-	customerEmitter := &customerEmitter{}
-	customerView := &customerView{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	customerSource := assignments.NewMockDeviceIDCustomer_Source(ctrl)
+	customerView := assignments.NewMockDeviceIDCustomer_View(ctrl)
 
-	customerView.get = func(key string) (*deviceId.Customer, error) {
-		assert.Equal(t, key, "42")
-		return &deviceId.Customer{Id: 433}, nil
-	}
+	api := services.NewAPIService(customerSource, customerView, nil, nil)
+
+	customerView.EXPECT().Get("42").Return(&deviceId.Customer{
+		Id: 433,
+	}, nil)
 
 	r, err := api.GetAssignment(context.Background(), &apiv1.GetAssignmentRequest{
 		DeviceId: 42,
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &apiv1.GetAssignmentResponse{
+	areEqual := proto.Equal(r, &apiv1.GetAssignmentResponse{
 		CustomerId: &wrappers.Int64Value{Value: 433},
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_API_GetAssignment_ShouldReturnErrorIfViewFails(t *testing.T) {
-	customerEmitter := &customerEmitter{}
-	customerView := &customerView{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	customerSource := assignments.NewMockDeviceIDCustomer_Source(ctrl)
+	customerView := assignments.NewMockDeviceIDCustomer_View(ctrl)
 
-	customerView.get = func(key string) (*deviceId.Customer, error) {
-		return nil, errors.Errorf("boom")
-	}
+	api := services.NewAPIService(customerSource, customerView, nil, nil)
+
+	customerView.EXPECT().Get(gomock.Any()).Return(nil, errors.Errorf("boom"))
 
 	_, err := api.GetAssignment(context.Background(), &apiv1.GetAssignmentRequest{
 		DeviceId: 42,
@@ -53,60 +59,59 @@ func Test_API_GetAssignment_ShouldReturnErrorIfViewFails(t *testing.T) {
 }
 
 func Test_API_GetAssignment_ShouldReturnNullForUnassignedDevice(t *testing.T) {
-	customerEmitter := &customerEmitter{}
-	customerView := &customerView{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	customerSource := assignments.NewMockDeviceIDCustomer_Source(ctrl)
+	customerView := assignments.NewMockDeviceIDCustomer_View(ctrl)
+	api := services.NewAPIService(customerSource, customerView, nil, nil)
 
-	customerView.get = func(key string) (*deviceId.Customer, error) {
-		return nil, nil
-	}
+	customerView.EXPECT().Get(gomock.Any()).Return(nil, nil)
 
 	r, err := api.GetAssignment(context.Background(), &apiv1.GetAssignmentRequest{
 		DeviceId: 42,
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &apiv1.GetAssignmentResponse{
+	areEqual := proto.Equal(r, &apiv1.GetAssignmentResponse{
 		CustomerId: nil,
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_API_AssignDevice(t *testing.T) {
-	customerEmitter := &customerEmitter{}
-	customerView := &customerView{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	customerSource := assignments.NewMockDeviceIDCustomer_Source(ctrl)
+	customerView := assignments.NewMockDeviceIDCustomer_View(ctrl)
 
-	var emitted assignments.DeviceIdCustomer_Emitter_Message
-	customerEmitter.emit = func(msg assignments.DeviceIdCustomer_Emitter_Message) error {
-		emitted = msg
-		return nil
-	}
+	api := services.NewAPIService(customerSource, customerView, nil, nil)
+
+	customerSource.EXPECT().Emit(assignments.DeviceIDCustomer_Source_Message{
+		Key: "42",
+		Value: &deviceId.Customer{
+			Id: 12,
+		},
+	})
 
 	_, err := api.AssignDevice(context.Background(), &apiv1.AssignDeviceRequest{
 		DeviceId:   42,
 		CustomerId: 12,
 	})
 	assert.NilError(t, err)
-
-	assert.DeepEqual(t, emitted, assignments.DeviceIdCustomer_Emitter_Message{
-		Key: "42",
-		Value: &deviceId.Customer{
-			Id: 12,
-		},
-	})
 }
 
 func Test_API_AssignDevice_ShouldReturnErrorIfEmitterFails(t *testing.T) {
-	customerEmitter := &customerEmitter{}
-	customerView := &customerView{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(customerEmitter, customerView, nil, nil)
+	customerSource := assignments.NewMockDeviceIDCustomer_Source(ctrl)
+	customerView := assignments.NewMockDeviceIDCustomer_View(ctrl)
 
-	customerEmitter.emit = func(msg assignments.DeviceIdCustomer_Emitter_Message) error {
-		return errors.Errorf("boom")
-	}
+	api := services.NewAPIService(customerSource, customerView, nil, nil)
+
+	customerSource.EXPECT().Emit(gomock.Any()).Return(errors.Errorf("boom"))
 
 	_, err := api.AssignDevice(context.Background(), &apiv1.AssignDeviceRequest{
 		DeviceId:   42,
@@ -116,38 +121,34 @@ func Test_API_AssignDevice_ShouldReturnErrorIfEmitterFails(t *testing.T) {
 }
 
 func Test_API_UpdateCustomerDetails(t *testing.T) {
-	var emitted assignments.CustomerIdDetails_Emitter_Message
-	emitter := &customerDetailsEmitter{
-		emit: func(message assignments.CustomerIdDetails_Emitter_Message) error {
-			emitted = message
-			return nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(nil, nil, emitter, nil)
+	source := assignments.NewMockCustomerIDDetails_Source(ctrl)
+	source.EXPECT().Emit(assignments.CustomerIDDetails_Source_Message{
+		Key: "45",
+		Value: &customerId.Details{
+			Name: "testing customer",
+		},
+	})
+
+	api := services.NewAPIService(nil, nil, source, nil)
 
 	_, err := api.UpdateCustomerDetails(context.Background(), &apiv1.UpdateCustomerDetailsRequest{
 		CustomerId: 45,
 		Name:       "testing customer",
 	})
 	assert.NilError(t, err)
-
-	assert.DeepEqual(t, emitted, assignments.CustomerIdDetails_Emitter_Message{
-		Key: "45",
-		Value: &customerId.Details{
-			Name: "testing customer",
-		},
-	})
 }
 
 func Test_API_UpdateCustomerDetailsShouldReturnErrorIfEmitterFails(t *testing.T) {
-	emitter := &customerDetailsEmitter{
-		emit: func(message assignments.CustomerIdDetails_Emitter_Message) error {
-			return errors.Errorf("boom")
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewAPIService(nil, nil, emitter, nil)
+	source := assignments.NewMockCustomerIDDetails_Source(ctrl)
+	source.EXPECT().Emit(gomock.Any()).Return(errors.Errorf("boom"))
+
+	api := services.NewAPIService(nil, nil, source, nil)
 
 	_, err := api.UpdateCustomerDetails(context.Background(), &apiv1.UpdateCustomerDetailsRequest{
 		CustomerId: 45,
@@ -157,15 +158,13 @@ func Test_API_UpdateCustomerDetailsShouldReturnErrorIfEmitterFails(t *testing.T)
 }
 
 func Test_API_GetCustomerDetails(t *testing.T) {
-	view := &customerDetailsView{
-		get: func(key string) (*customerId.Details, error) {
-			assert.Equal(t, key, "42")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return &customerId.Details{
-				Name: "testing customer",
-			}, nil
-		},
-	}
+	view := assignments.NewMockCustomerIDDetails_View(ctrl)
+	view.EXPECT().Get("42").Return(&customerId.Details{
+		Name: "testing customer",
+	}, nil)
 
 	api := services.NewAPIService(nil, nil, nil, view)
 
@@ -174,19 +173,18 @@ func Test_API_GetCustomerDetails(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &apiv1.GetCustomerDetailsResponse{
+	areEqual := proto.Equal(r, &apiv1.GetCustomerDetailsResponse{
 		Name: &wrappers.StringValue{Value: "testing customer"},
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_API_GetCustomerDetails_ShouldReturnEmptyIfDetailsDontExist(t *testing.T) {
-	view := &customerDetailsView{
-		get: func(key string) (*customerId.Details, error) {
-			assert.Equal(t, key, "42")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return nil, nil
-		},
-	}
+	view := assignments.NewMockCustomerIDDetails_View(ctrl)
+	view.EXPECT().Get("42").Return(nil, nil)
 
 	api := services.NewAPIService(nil, nil, nil, view)
 
@@ -195,19 +193,18 @@ func Test_API_GetCustomerDetails_ShouldReturnEmptyIfDetailsDontExist(t *testing.
 	})
 	assert.NilError(t, err)
 
-	assert.DeepEqual(t, r, &apiv1.GetCustomerDetailsResponse{
+	areEqual := proto.Equal(r, &apiv1.GetCustomerDetailsResponse{
 		Name: nil,
 	})
+	assert.Assert(t, areEqual)
 }
 
 func Test_API_GetCustomerDetails_ShouldErrorIfViewFails(t *testing.T) {
-	view := &customerDetailsView{
-		get: func(key string) (*customerId.Details, error) {
-			assert.Equal(t, key, "42")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return nil, errors.Errorf("boom")
-		},
-	}
+	view := assignments.NewMockCustomerIDDetails_View(ctrl)
+	view.EXPECT().Get("42").Return(nil, errors.Errorf("boom"))
 
 	api := services.NewAPIService(nil, nil, nil, view)
 

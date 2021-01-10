@@ -36,7 +36,7 @@ FROM build as endtoend
 
 WORKDIR /build
 
-RUN go get github.com/DATA-DOG/godog/cmd/godog
+RUN go get github.com/cucumber/godog/cmd/godog
 
 WORKDIR /build/testing
 

@@ -10,46 +10,44 @@ import (
 	gatewayv1 "kafmesh-example/internal/definitions/models/kafmesh/gateway/v1"
 	"kafmesh-example/internal/services"
 
+	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	"gotest.tools/assert"
 )
 
 func Test_Gateway_Details(t *testing.T) {
-	detailsEmitter := &detailsEmitter{}
-	heartbeatEmitter := &heartbeatEmitter{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewGatewayService(detailsEmitter, heartbeatEmitter)
+	detailsSource := details.NewMockDeviceIDDetails_Source(ctrl)
+	heartbeatsSource := heartbeats.NewMockDeviceIDHeartbeat_Source(ctrl)
 
-	var emitted details.DeviceIdDetails_Emitter_Message
-	detailsEmitter.emit = func(msg details.DeviceIdDetails_Emitter_Message) error {
-		emitted = msg
-		return nil
-	}
+	api := services.NewGatewayService(detailsSource, heartbeatsSource)
+
+	detailsSource.EXPECT().Emit(details.DeviceIDDetails_Source_Message{
+		Key: "42",
+		Value: &deviceId.Details{
+			Name: "testing",
+		},
+	})
 
 	_, err := api.Details(context.Background(), &gatewayv1.DetailsRequest{
 		DeviceId: 42,
 		Name:     "testing",
 	})
 	assert.NilError(t, err)
-
-	assert.DeepEqual(t, emitted, details.DeviceIdDetails_Emitter_Message{
-		Key: "42",
-		Value: &deviceId.Details{
-			Name: "testing",
-		},
-	})
 }
 
 func Test_Gateway_Details_ShouldReturnErrorIfEmitterFails(t *testing.T) {
-	detailsEmitter := &detailsEmitter{}
-	heartbeatEmitter := &heartbeatEmitter{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewGatewayService(detailsEmitter, heartbeatEmitter)
+	detailsSource := details.NewMockDeviceIDDetails_Source(ctrl)
+	heartbeatsSource := heartbeats.NewMockDeviceIDHeartbeat_Source(ctrl)
+	api := services.NewGatewayService(detailsSource, heartbeatsSource)
 
-	detailsEmitter.emit = func(msg details.DeviceIdDetails_Emitter_Message) error {
-		return errors.Errorf("boom")
-	}
+	detailsSource.EXPECT().Emit(gomock.Any()).Return(errors.Errorf("boom"))
 
 	_, err := api.Details(context.Background(), &gatewayv1.DetailsRequest{
 		DeviceId: 42,
@@ -59,18 +57,22 @@ func Test_Gateway_Details_ShouldReturnErrorIfEmitterFails(t *testing.T) {
 }
 
 func Test_Gateway_Heartbeat(t *testing.T) {
-	detailsEmitter := &detailsEmitter{}
-	heartbeatEmitter := &heartbeatEmitter{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewGatewayService(detailsEmitter, heartbeatEmitter)
+	detailsSource := details.NewMockDeviceIDDetails_Source(ctrl)
+	heartbeatsSource := heartbeats.NewMockDeviceIDHeartbeat_Source(ctrl)
 
-	var emitted heartbeats.DeviceIdHeartbeat_Emitter_Message
-	heartbeatEmitter.emit = func(msg heartbeats.DeviceIdHeartbeat_Emitter_Message) error {
-		emitted = msg
-		return nil
-	}
+	api := services.NewGatewayService(detailsSource, heartbeatsSource)
 
 	now := ptypes.TimestampNow()
+	heartbeatsSource.EXPECT().Emit(heartbeats.DeviceIDHeartbeat_Source_Message{
+		Key: "42",
+		Value: &deviceId.Heartbeat{
+			Time:      now,
+			IsHealthy: true,
+		},
+	})
 
 	_, err := api.Heartbeat(context.Background(), &gatewayv1.HeartbeatRequest{
 		DeviceId:  42,
@@ -78,25 +80,18 @@ func Test_Gateway_Heartbeat(t *testing.T) {
 		IsHealthy: true,
 	})
 	assert.NilError(t, err)
-
-	assert.DeepEqual(t, emitted, heartbeats.DeviceIdHeartbeat_Emitter_Message{
-		Key: "42",
-		Value: &deviceId.Heartbeat{
-			Time:      now,
-			IsHealthy: true,
-		},
-	})
 }
 
 func Test_Gateway_Heartbeat_ShouldReturnErrorIfEmitterFails(t *testing.T) {
-	detailsEmitter := &detailsEmitter{}
-	heartbeatEmitter := &heartbeatEmitter{}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	api := services.NewGatewayService(detailsEmitter, heartbeatEmitter)
+	detailsSource := details.NewMockDeviceIDDetails_Source(ctrl)
+	heartbeatsSource := heartbeats.NewMockDeviceIDHeartbeat_Source(ctrl)
 
-	heartbeatEmitter.emit = func(msg heartbeats.DeviceIdHeartbeat_Emitter_Message) error {
-		return errors.Errorf("boom")
-	}
+	api := services.NewGatewayService(detailsSource, heartbeatsSource)
+
+	heartbeatsSource.EXPECT().Emit(gomock.Any()).Return(errors.Errorf("boom"))
 
 	now := ptypes.TimestampNow()
 

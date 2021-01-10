@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 
-	"github.com/DATA-DOG/godog/gherkin"
+	"github.com/cucumber/messages-go/v10"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 )
@@ -14,7 +14,7 @@ type Device struct {
 	ID int64
 }
 
-func NewDevice(data *gherkin.DataTable) (*Device, error) {
+func NewDevice(data *messages.PickleStepArgument_PickleTable) (*Device, error) {
 	m := dataToMap(data)
 
 	v, ok := m["id"]
@@ -37,7 +37,7 @@ type Customer struct {
 	Name *string
 }
 
-func NewCustomer(data *gherkin.DataTable) (*Customer, error) {
+func NewCustomer(data *messages.PickleStepArgument_PickleTable) (*Customer, error) {
 	m := dataToMap(data)
 
 	v, ok := m["id"]
@@ -67,7 +67,7 @@ type Details struct {
 	Time *timestamp.Timestamp
 }
 
-func NewDetails(data *gherkin.DataTable) (*Details, error) {
+func NewDetails(data *messages.PickleStepArgument_PickleTable) (*Details, error) {
 	m := dataToMap(data)
 
 	v, ok := m["name"]
@@ -99,7 +99,7 @@ type Heartbeat struct {
 	IsHealthy bool
 }
 
-func NewHeartbeat(data *gherkin.DataTable) (*Heartbeat, error) {
+func NewHeartbeat(data *messages.PickleStepArgument_PickleTable) (*Heartbeat, error) {
 	m := dataToMap(data)
 
 	t, ok := m["time"]
@@ -136,7 +136,7 @@ func NewHeartbeat(data *gherkin.DataTable) (*Heartbeat, error) {
 	}, nil
 }
 
-func dataToMap(data *gherkin.DataTable) map[string]string {
+func dataToMap(data *messages.PickleStepArgument_PickleTable) map[string]string {
 	m := map[string]string{}
 	for _, r := range data.Rows {
 		m[r.Cells[0].Value] = r.Cells[1].Value

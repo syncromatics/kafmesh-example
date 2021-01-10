@@ -32,12 +32,12 @@ services:
       - db
 
   kafka-zookeeper:
-    image: docker.io/confluentinc/cp-zookeeper:5.3.1
+    image: docker.io/confluentinc/cp-zookeeper:6.0.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
   kafka:
-    image: docker.io/confluentinc/cp-kafka:5.3.1
+    image: docker.io/confluentinc/cp-kafka:6.0.1
     environment:
       HOST_IP: "kafka"
       KAFKA_BROKER_ID: "1"

@@ -15,23 +15,23 @@ import (
 
 	"github.com/syncromatics/kafmesh/pkg/runner"
 
-	customerId "kafmesh-example/internal/definitions/models/kafmesh/customerId"
+	"kafmesh-example/internal/definitions/models/kafmesh/deviceId"
 )
 
-type CustomerIdDetails_View interface {
+type DeviceIDCustomer_View interface {
 	Keys() []string
-	Get(key string) (*customerId.Details, error)
+	Get(key string) (*deviceId.Customer, error)
 }
 
-type CustomerIdDetails_View_impl struct {
+type DeviceIDCustomer_View_impl struct {
 	view *goka.View
 }
 
-func New_CustomerIdDetails_View(options runner.ServiceOptions) (*CustomerIdDetails_View_impl, error) {
+func New_DeviceIDCustomer_View(options runner.ServiceOptions) (*DeviceIDCustomer_View_impl, error) {
 	brokers := options.Brokers
 	protoWrapper := options.ProtoWrapper
 
-	codec, err := protoWrapper.Codec("kafmesh.customerId.details", &customerId.Details{})
+	codec, err := protoWrapper.Codec("kafmesh.deviceId.customer", &deviceId.Customer{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create codec")
 	}
@@ -41,7 +41,7 @@ func New_CustomerIdDetails_View(options runner.ServiceOptions) (*CustomerIdDetai
 		WriteBuffer:        opt.MiB * 1,
 	}
 
-	path := filepath.Join("/tmp/storage", "view", "kafmesh.customerId.details")
+	path := filepath.Join("/tmp/storage", "view", "kafmesh.deviceId.customer")
 
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {
@@ -51,7 +51,7 @@ func New_CustomerIdDetails_View(options runner.ServiceOptions) (*CustomerIdDetai
 	builder := storage.BuilderWithOptions(path, opts)
 
 	view, err := goka.NewView(brokers,
-		goka.Table("kafmesh.customerId.details"),
+		goka.Table("kafmesh.deviceId.customer"),
 		codec,
 		goka.WithViewStorageBuilder(builder),
 		goka.WithViewHasher(kafkautil.MurmurHasher),
@@ -61,22 +61,22 @@ func New_CustomerIdDetails_View(options runner.ServiceOptions) (*CustomerIdDetai
 		return nil, errors.Wrap(err, "failed creating view")
 	}
 
-	return &CustomerIdDetails_View_impl{
+	return &DeviceIDCustomer_View_impl{
 		view: view,
 	}, nil
 }
 
-func (v *CustomerIdDetails_View_impl) Watch(ctx context.Context) func() error {
+func (v *DeviceIDCustomer_View_impl) Watch(ctx context.Context) func() error {
 	return func() error {
 		return v.view.Run(ctx)
 	}
 }
 
-func (v *CustomerIdDetails_View_impl) Keys() []string {
+func (v *DeviceIDCustomer_View_impl) Keys() []string {
 	return v.Keys()
 }
 
-func (v *CustomerIdDetails_View_impl) Get(key string) (*customerId.Details, error) {
+func (v *DeviceIDCustomer_View_impl) Get(key string) (*deviceId.Customer, error) {
 	m, err := v.view.Get(key)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get value from view")
@@ -86,9 +86,9 @@ func (v *CustomerIdDetails_View_impl) Get(key string) (*customerId.Details, erro
 		return nil, nil
 	}
 
-	msg, ok := m.(*customerId.Details)
+	msg, ok := m.(*deviceId.Customer)
 	if !ok {
-		return nil, errors.Errorf("expecting message of type '*customerId.Details' got type '%t'", m)
+		return nil, errors.Errorf("expecting message of type '*deviceId.Customer' got type '%t'", m)
 	}
 
 	return msg, nil

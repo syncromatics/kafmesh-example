@@ -14,21 +14,21 @@ import (
 
 // GatewayService is the service for ingressing device telemetry
 type GatewayService struct {
-	detailsEmitter    details.DeviceIdDetails_Emitter
-	heartbeatsEmitter heartbeats.DeviceIdHeartbeat_Emitter
+	detailsSource    details.DeviceIDDetails_Source
+	heartbeatsSource heartbeats.DeviceIDHeartbeat_Source
 }
 
 // NewGatewayService creates a new gateway service
-func NewGatewayService(detailsEmitter details.DeviceIdDetails_Emitter, heartbeatsEmitter heartbeats.DeviceIdHeartbeat_Emitter) *GatewayService {
+func NewGatewayService(detailsSource details.DeviceIDDetails_Source, heartbeatsSource heartbeats.DeviceIDHeartbeat_Source) *GatewayService {
 	return &GatewayService{
-		detailsEmitter:    detailsEmitter,
-		heartbeatsEmitter: heartbeatsEmitter,
+		detailsSource:    detailsSource,
+		heartbeatsSource: heartbeatsSource,
 	}
 }
 
 // Details handles device details telemetry
 func (s *GatewayService) Details(ctx context.Context, request *gatewayv1.DetailsRequest) (*gatewayv1.DetailsResponse, error) {
-	err := s.detailsEmitter.Emit(details.DeviceIdDetails_Emitter_Message{
+	err := s.detailsSource.Emit(details.DeviceIDDetails_Source_Message{
 		Key: strconv.Itoa(int(request.DeviceId)),
 		Value: &deviceId.Details{
 			Name: request.Name,
@@ -44,7 +44,7 @@ func (s *GatewayService) Details(ctx context.Context, request *gatewayv1.Details
 
 // Heartbeat handles device heartbeat telemetry
 func (s *GatewayService) Heartbeat(ctx context.Context, request *gatewayv1.HeartbeatRequest) (*gatewayv1.HeartbeatResponse, error) {
-	err := s.heartbeatsEmitter.Emit(heartbeats.DeviceIdHeartbeat_Emitter_Message{
+	err := s.heartbeatsSource.Emit(heartbeats.DeviceIDHeartbeat_Source_Message{
 		Key: strconv.Itoa(int(request.DeviceId)),
 		Value: &deviceId.Heartbeat{
 			Time:      request.Time,
